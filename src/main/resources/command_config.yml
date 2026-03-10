@@ -1,0 +1,101 @@
+# =========================================================
+# ManaEnchants Command Configuration (command_config.yml)
+# =========================================================
+#
+# This file allows admins to customize the aliases and descriptions
+# for all commands in the system. It is read-only - the plugin will
+# never save changes here, so you can freely edit it.
+#
+# Keynotes:
+# 1. description_amount determines how many description lines
+#    are displayed in the /help command for this subcommand.
+#    Increase the number if you want more detailed help.
+#    If you made changes, make sure to edit the locale
+#    files accordingly.
+#
+# 2. Root command aliases define the main ways to call the command:
+#       Example: mana_enchants = /manaenchants, /mana_enchants, /m
+#
+# 3. Child command aliases are subcommands under the root:
+#       Example: /manaenchants help or /manaenchants ? will show the same help info.
+#
+# 4. If you delete this file, the plugin will automatically fall back
+#    to the default hardcoded aliases and descriptions.
+#
+# 5. Values within this file will only be applied on reboot, and will not
+#    update with /manaenchants reload
+#
+# =========================================================
+#
+# !!! DO NOT CHANGE THIS VALUE !!!
+# This is used for internal version tracking and migrations.
+config-version: 1
+# -----------------------------------
+# ManaEnchants Commands & Sub Commands
+# -----------------------------------
+manaenchants:
+  root:
+    description_amount: 1
+    aliases: ["manaenchants", "mana_enchants"]
+  help:
+    description_amount: 1
+    aliases: ["help", "?"]
+  reload:
+    description_amount: 1
+    aliases: ["reload"]
+  item:
+    description_amount: 1
+    aliases: ["item", "itemstack"]
+  config:
+    description_amount: 1
+    aliases: ["config"]
+  version:
+    description_amount: 1
+    aliases: ["version", "info", "plugin"]
+enchant:
+  root:
+    description_amount: 1
+    aliases: ["enchant", "ench", "enchants"]
+  help:
+    description_amount: 1
+    aliases: ["help", "?"]
+  add:
+    description_amount: 1
+    aliases: ["add"]
+  clear:
+    description_amount: 1
+    aliases: ["clear"]
+  list:
+    description_amount: 1
+    aliases: ["list"]
+  remove:
+    description_amount: 1
+    aliases: ["remove", "delete"]
+  set:
+    description_amount: 1
+    aliases: ["set"]
+  info:
+    description_amount: 1
+    aliases: ["info", "show", "details"]
+xp:
+  root:
+    description_amount: 1
+    aliases: ["xp", "exp", "experience"]
+  help:
+    description_amount: 1
+    aliases: ["help", "?"]
+  add:
+    description_amount: 1
+    aliases: ["add", "give"]
+  clear:
+    description_amount: 1
+    aliases: ["clear", "reset"]
+  info:
+    description_amount: 1
+    aliases: ["info", "i", "show"]
+  remove:
+    description_amount: 1
+    aliases: ["remove", "take"]
+  set:
+    description_amount: 1
+    aliases: ["set"]

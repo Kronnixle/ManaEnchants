@@ -1,0 +1,11 @@
+items:
+  enchant_diamond:
+    ==: org.bukkit.inventory.ItemStack
+    DataVersion: 4671
+    id: minecraft:diamond
+    count: 1
+    components:
+      minecraft:lore: '[{extra:[{bold:1b,color:"green",italic:0b,obfuscated:0b,strikethrough:0b,text:"Enchant
+        Diamond",underlined:0b}],text:""}]'
+      minecraft:custom_name: '{extra:[{bold:1b,color:"aqua",italic:0b,obfuscated:0b,strikethrough:0b,text:"Enchant Diamond",underlined:0b}],text:""}'
+    schema_version: 1

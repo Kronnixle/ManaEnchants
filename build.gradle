@@ -1,0 +1,105 @@
+plugins {
+    id 'java'
+    id 'xyz.jpenilla.run-paper' version '2.3.1'
+    id 'io.papermc.paperweight.userdev' version '2.0.0-beta.19'
+    id 'com.gradleup.shadow' version '9.2.1'
+    id 'maven-publish'
+}
+
+group = 'net.manameta'
+version = '1.0.0'
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+
+    maven {
+        name = 'papermc'
+        url = 'https://repo.papermc.io/repository/maven-public/'
+    }
+
+    maven {
+        name = 'mrnavastar'
+        url = 'https://maven.mrnavastar.me/releases'
+    }
+}
+
+dependencies {
+    paperweight.paperDevBundle('1.21.11-R0.1-SNAPSHOT')
+
+    // ManaAPI is compile-only; provided by ManaCore at runtime
+    compileOnly 'net.manameta:ManaAPI:1.0.0'
+
+    implementation 'net.objecthunter:exp4j:0.4.8'
+
+    // ProtoWeaver support
+    compileOnly 'me.mrnavastar.protoweaver:common:1.5.1'
+
+
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release.set(21)
+}
+
+shadowJar {
+    archiveClassifier.set(null)
+    destinationDirectory.set(file('C:/Users/user-00/Desktop/Plugin Development/1.21.11 server/plugins'))
+
+    // Exclude ProtoWeaver from the shaded jar
+    dependencies {
+        exclude(dependency('me.mrnavastar.protoweaver:.*'))
+    }
+
+    mergeServiceFiles()
+}
+
+// Build task sequence
+tasks.register('buildPlugin') {
+    dependsOn tasks.shadowJar
+}
+
+tasks.build {
+    dependsOn tasks.shadowJar
+}
+
+tasks.assemble {
+    dependsOn tasks.shadowJar
+}
+
+// Disable default jar to avoid conflicts
+tasks.jar {
+    enabled = false
+}
+
+publishing {
+    publications {
+        create('maven', MavenPublication) {
+            from components.java
+            groupId = 'net.manameta'
+            artifactId = 'manaenchants'
+            version = project.version
+        }
+    }
+    repositories {
+        maven {
+            name = 'github'
+            url = uri('https://maven.pkg.github.com/Kronnixle/ManaEnchants')
+            credentials {
+                username = project.findProperty('gpr.user') ?: System.getenv('GH_USER')
+                password = project.findProperty('gpr.key') ?: System.getenv('GH_TOKEN')
+            }
+        }
+    }
+}
+
+// Run server task for local testing
+tasks.runServer {
+    minecraftVersion('1.21.11')
+    pluginJars.from(tasks.shadowJar.archiveFile)
+}
