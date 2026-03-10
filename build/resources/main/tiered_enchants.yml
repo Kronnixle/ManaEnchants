@@ -1,0 +1,1133 @@
+# ============================================================
+# ManaEnchants - tiered_enchants.yml
+# ============================================================
+#
+# Delete this file if you wish to restore all values to
+# their default values.
+# CONFIG VERSION
+#
+# The plugin may use this value for future migrations.
+#
+config-version: 1
+#
+# ============================================================
+# ENCHANT STRUCTURE OVERVIEW
+# ============================================================
+#
+# enchants:
+#   <enchant_key>:
+#     enabled: true|false
+#     rarity: COMMON|UNCOMMON|RARE|LEGENDARY
+#
+#     visibility:
+#       mode: visible|hidden
+#
+#         visible  - Always shown in the enchant GUI.
+#         hidden   - Not shown unless player already owns it.
+#
+#     applies_to: [LIST OF ITEM TYPES]
+#       Defines which item categories this enchant can apply to.
+#
+#     max_level: <number> or -1 to have an infinite amount.
+#
+#     incompatibilities: [LIST OF ENCHANT KEYS]
+#
+# ============================================================
+# COST MODES
+# ============================================================
+#
+# costs:
+#   mode: FORMULA | PER_LEVEL
+#
+# ------------------------------------------------------------
+# MODE: FORMULA
+# ------------------------------------------------------------
+# Used for scalable enchants.
+#
+# Sections:
+#
+#   catalyst:
+#     default:
+#       material: <MATERIAL>
+#       base: <int>
+#       per_level: <int>
+#       multiplier: <decimal>
+#
+#       Final amount formula: ((base + (level * per_level)) * multiplier)
+#
+#     overrides:
+#       <level>:
+#         material: <MATERIAL>
+#         amount: <int>
+#
+#       Overrides take priority over formula for that level.
+#
+#   xp:
+#     formula: FLAT | LINEAR | TRIANGULAR | EXPONENTIAL | POWER | STEP | LOG
+#     base: <int>
+#     multiplier: <float>   (used in EXPONENTIAL, POWER, LOG)
+#     per_level: <int>      (used in LINEAR, TRIANGULAR and EXPONENTIAL)
+#     step_amount: <int>    (used in STEP)
+#     step_interval <int>   (used in STEP)
+#
+#     FLAT:
+#       xp = base
+#     LINEAR:
+#       xp = base + (level * per_level)
+#     TRIANGULAR:
+#       xp = base + ((level * (level + 1)) / 2) * per_level
+#     EXPONENTIAL:
+#       xp = base * (multiplier ^ (level - 1))
+#     POWER:
+#       xp = base * (level ^ multiplier)
+#     STEP:
+#       xp = base + floor(level / step_interval) * step_amount
+#     LOG:
+#       xp = base + log(level) * multiplier
+#
+#   bookshelf:
+#     mode: REQUIRED | TIERED | IGNORED
+#
+#     REQUIRED:
+#       required:
+#         base: <int>
+#         per_level: <int>
+#       required_shelves = base + (level * per_level)
+#
+#     TIERED:e
+#       tiers:
+#         <level>: <required_shelves>
+#
+#     IGNORED:
+#       No bookshelf requirement.
+#
+# ------------------------------------------------------------
+# MODE: PER_LEVEL
+# ------------------------------------------------------------
+# Fully manual configuration.
+#
+# costs:
+#   mode: PER_LEVEL
+#   levels:
+#     <level_number>:
+#       catalyst:
+#         material: <MATERIAL>
+#         amount: <int>
+#       xp: <int>
+#       bookshelf: <int>
+#
+# max_level must match the highest defined level.
+#
+# ============================================================
+# VALIDATION RULES
+# ============================================================
+#
+# - Enchant keys must be unique.
+# - max_level must be >= 1.
+# - In PER_LEVEL mode, every level from 1 → max_level must exist.
+# - In FORMULA mode, overrides cannot exceed max_level.
+# - Materials must be valid Bukkit Material enums.
+# - Incompatibilities should reference valid enchant keys.
+#
+# ============================================================
+# NOTES
+# ============================================================
+#
+# - Setting catalyst material to an unobtainable item (e.g. BARRIER)
+#   effectively blocks upgrading that level.
+#
+# - Hidden enchants can still be upgraded if already present on the
+#   upgraded item.
+#
+# - Anvil weight scaling can be found in the modified_anvil.yml
+#
+# - XP Formula can be found in config.yml, by default it has been
+#   overwritten so every 75 EXP = 1 EXP level.
+#
+# ============================================================
+enchants:
+  protection:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ HELMET, CHESTPLATE, LEGGINGS, BOOTS ]
+    max_level: 4
+    incompatibilities: [ FIRE_PROTECTION, BLAST_PROTECTION, PROJECTILE_PROTECTION ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: IRON_INGOT
+          base: 8
+          per_level: 8
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 3
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 0
+          per_level: 5
+  fire_protection:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ HELMET, CHESTPLATE, LEGGINGS, BOOTS ]
+    max_level: 4
+    incompatibilities: [ PROTECTION, BLAST_PROTECTION, PROJECTILE_PROTECTION ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: GLISTERING_MELON_SLICE
+          base: 8
+          per_level: 8
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 3
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 0
+          per_level: 5
+  blast_protection:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ HELMET, CHESTPLATE, LEGGINGS, BOOTS ]
+    max_level: 4
+    incompatibilities: [ PROTECTION, FIRE_PROTECTION, PROJECTILE_PROTECTION ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: OBSIDIAN
+          base: 2
+          per_level: 2
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 3
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 0
+          per_level: 5
+  projectile_protection:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ HELMET, CHESTPLATE, LEGGINGS, BOOTS ]
+    max_level: 4
+    incompatibilities: [ PROTECTION, FIRE_PROTECTION, BLAST_PROTECTION ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: ARROW
+          base: 10
+          per_level: 4
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 3
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 0
+          per_level: 5
+  feather_falling:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ BOOTS ]
+    max_level: 4
+    incompatibilities: []
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: FEATHER
+          base: 10
+          per_level: 4
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 3
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 6
+          per_level: 3
+  respiration:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ HELMET ]
+    max_level: 3
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: PUFFERFISH
+          base: 3
+          per_level: 3
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 4
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 4
+          per_level: 4
+  aqua_affinity:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ HELMET ]
+    max_level: 1
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: KELP
+          base: 64
+          per_level: 64
+          multiplier: 1.0
+      xp:
+        formula: FLAT
+        base: 10
+        per_level: 0
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 8
+          per_level: 0
+  thorns:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ HELMET, CHESTPLATE, LEGGINGS, BOOTS ]
+    max_level: 3
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: CACTUS
+          base: 16
+          per_level: 16
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 5
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 6
+          per_level: 4
+  depth_strider:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ BOOTS ]
+    max_level: 3
+    incompatibilities: [ FROST_WALKER ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: NAUTILUS_SHELL
+          base: 3
+          per_level: 3
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 3
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 3
+          per_level: 3
+  frost_walker:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ BOOTS ]
+    max_level: 2
+    incompatibilities: [ DEPTH_STRIDER ]
+    costs:
+      mode: PER_LEVEL
+      levels:
+        1:
+          catalyst:
+            material: ICE
+            amount: 64
+          xp: 8
+          bookshelf: 5
+        2:
+          catalyst:
+            material: PACKED_ICE
+            amount: 64
+          xp: 16
+          bookshelf: 10
+  sharpness:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ SWORD, AXE, SPEAR ]
+    max_level: 5
+    incompatibilities: [ SMITE, BANE_OF_ARTHROPODS, BREACH, DENSITY ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: FLINT
+          base: 4
+          per_level: 0
+          multiplier: 2.0
+      xp:
+        formula: TRIANGULAR
+        base: 0
+        per_level: 3
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 3
+          per_level: 3
+  smite:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ SWORD, AXE, SPEAR, MACE ]
+    max_level: 5
+    incompatibilities: [ SHARPNESS, BANE_OF_ARTHROPODS, BREACH, DENSITY ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: ROTTEN_FLESH
+          base: 8
+          per_level: 14
+          multiplier: 1.0
+      xp:
+        formula: TRIANGULAR
+        base: 0
+        per_level: 2
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 3
+          per_level: 3
+  bane_of_arthropods:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ SWORD, AXE, SPEAR, MACE ]
+    max_level: 5
+    incompatibilities: [ SHARPNESS, SMITE, BREACH, DENSITY ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: SPIDER_EYE
+          base: 4
+          per_level: 7
+          multiplier: 1.0
+      xp:
+        formula: TRIANGULAR
+        base: 0
+        per_level: 2
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 3
+          per_level: 3
+  knockback:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ SWORD, SPEAR ]
+    max_level: 2
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: WIND_CHARGE
+          base: 16
+          per_level: 8
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 10
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 5
+          per_level: 5
+  fire_aspect:
+    enabled: true
+    rarity: RARE
+    visibility:
+      mode: visible
+    applies_to: [ SWORD, SPEAR, MACE ]
+    max_level: 2
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: BLAZE_POWDER
+          base: 8
+          per_level: 24
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 8
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 6
+          per_level: 6
+  looting:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ SWORD, SPEAR, AXE ]
+    max_level: 3
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: RABBIT_FOOT
+          base: 4
+          per_level: 4
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 8
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 5
+          per_level: 5
+  sweeping_edge:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ SWORD ]
+    max_level: 3
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: AMETHYST_SHARD
+          base: 16
+          per_level: 0
+          multiplier: 2.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 5
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 5
+          per_level: 5
+  silk_touch:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ PICKAXE, AXE, SHOVEL, HOE ]
+    max_level: 1
+    incompatibilities: [ FORTUNE ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: STRING
+          base: 64
+          per_level: 0
+          multiplier: 1.0
+      xp:
+        formula: FLAT
+        base: 18
+        per_level: 0
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 10
+          per_level: 0
+  fortune:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ PICKAXE, AXE, SHOVEL, HOE ]
+    max_level: 3
+    incompatibilities: [ SILK_TOUCH ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: RABBIT_FOOT
+          base: 4
+          per_level: 4
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 8
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 5
+          per_level: 5
+  power:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ BOW ]
+    max_level: 5
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: GLOWSTONE_DUST
+          base: 4
+          per_level: 0
+          multiplier: 2.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 2
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 0
+          per_level: 3
+  punch:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ BOW ]
+    max_level: 2
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: WIND_CHARGE
+          base: 16
+          per_level: 8
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 10
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 5
+          per_level: 5
+  flame:
+    enabled: true
+    rarity: RARE
+    visibility:
+      mode: visible
+    applies_to: [ BOW ]
+    max_level: 1
+    incompatibilities: [ ]
+    costs:
+      mode: PER_LEVEL
+      levels:
+        1:
+          catalyst:
+            material: BLAZE_POWDER
+            amount: 16
+          xp: 12
+          bookshelf: 9
+  infinity:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ BOW ]
+    max_level: 1
+    incompatibilities: [ MENDING ]
+    costs:
+      mode: PER_LEVEL
+      levels:
+        1:
+          catalyst:
+            material: ARROW
+            amount: 64
+          xp: 20
+          bookshelf: 15
+  luck_of_the_sea:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ FISHING_ROD ]
+    max_level: 3
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: HEART_OF_THE_SEA
+          base: 1
+          per_level: 1
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 5
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 4
+          per_level: 5
+  lure:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ FISHING_ROD ]
+    max_level: 3
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: COD
+          base: 4
+          per_level: 0
+          multiplier: 2.0
+      xp:
+        formula: LINEAR
+        base: 2
+        per_level: 6
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 0
+          per_level: 4
+  loyalty:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ TRIDENT ]
+    max_level: 3
+    incompatibilities: [ RIPTIDE ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: PRISMARINE_CRYSTALS
+          base: 16
+          per_level: 0
+          multiplier: 2.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 4
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 5
+          per_level: 3
+  impaling:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ TRIDENT ]
+    max_level: 5
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: PRISMARINE_SHARD
+          base: 4
+          per_level: 0
+          multiplier: 2.0
+      xp:
+        formula: TRIANGULAR
+        base: 0
+        per_level: 1
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 3
+          per_level: 3
+  riptide:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ TRIDENT ]
+    max_level: 3
+    incompatibilities: [ LOYALTY, CHANNELING ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: PHANTOM_MEMBRANE
+          base: 8
+          per_level: 0
+          multiplier: 2.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 5
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 6
+          per_level: 4
+  channeling:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ TRIDENT ]
+    max_level: 1
+    incompatibilities: [ RIPTIDE ]
+    costs:
+      mode: PER_LEVEL
+      levels:
+        1:
+          catalyst:
+            material: LIGHTNING_ROD
+            amount: 16
+          xp: 15
+          bookshelf: 10
+  multishot:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ CROSSBOW ]
+    max_level: 1
+    incompatibilities: [ PIERCING ]
+    costs:
+      mode: PER_LEVEL
+      levels:
+        1:
+          catalyst:
+            material: ARROW
+            amount: 64
+          xp: 10
+          bookshelf: 10
+  quick_charge:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ CROSSBOW ]
+    max_level: 3
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: REDSTONE
+          base: 16
+          per_level: 0
+          multiplier: 2.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 4
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 3
+          per_level: 6
+  piercing:
+    enabled: true
+    rarity: UNCOMMON
+    visibility:
+      mode: visible
+    applies_to: [ CROSSBOW ]
+    max_level: 4
+    incompatibilities: [ MULTISHOT ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: SPECTRAL_ARROW
+          base: 16
+          per_level: 16
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 4
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 0
+          per_level: 5
+  density:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ MACE ]
+    max_level: 5
+    incompatibilities: [ BREACH, BANE_OF_ARTHROPODS, SMITE, SHARPNESS ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: ANVIL
+          base: 1
+          per_level: 1
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 4
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 3
+          per_level: 3
+  breach:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ MACE ]
+    max_level: 4
+    incompatibilities: [ DENSITY, BANE_OF_ARTHROPODS, SMITE, SHARPNESS ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: ECHO_SHARD
+          base: 1
+          per_level: 1
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 5
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 4
+          per_level: 4
+  wind_burst:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ MACE ]
+    max_level: 3
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: WIND_CHARGE
+          base: 16
+          per_level: 0
+          multiplier: 2.0
+      xp:
+        formula: LINEAR
+        base: 4
+        per_level: 4
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 10
+          per_level: 2
+  mending:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ PICKAXE, AXE, SHOVEL, SWORD, CHESTPLATE, HELMET, LEGGINGS, BOOTS, ELYTRA, HOE, RODS, BOWS, TRIDENT, MACE, SPEAR, SHIELD, SHEARS,
+                  FLINT_AND_STEEL, BRUSH ]
+    max_level: 1
+    incompatibilities: [ INFINITY ]
+    costs:
+      mode: PER_LEVEL
+      levels:
+        1:
+          catalyst:
+            material: EMERALD
+            amount: 20
+          xp: 20
+          bookshelf: 16
+  soul_speed:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ BOOTS ]
+    max_level: 3
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: SOUL_SAND
+          base: 16
+          per_level: 0
+          multiplier: 2.0
+      xp:
+        formula: LINEAR
+        base: 5
+        per_level: 5
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 10
+          per_level: 3
+  swift_sneak:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ LEGGINGS ]
+    max_level: 3
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: SCULK_CATALYST
+          base: 16
+          per_level: 8
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 8
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 10
+          per_level: 3
+  lunge:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ SPEAR ]
+    max_level: 3
+    incompatibilities: [ ]
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: RABBIT_FOOT
+          base: 4
+          per_level: 4
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 4
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 8
+          per_level: 3
+  efficiency:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ PICKAXE, AXE, SHOVEL, HOE, SHEARS ]
+    max_level: 5
+    incompatibilities: []
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: SUGAR
+          base: 0
+          per_level: 8
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 2
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 0
+          per_level: 3
+  unbreaking:
+    enabled: true
+    rarity: COMMON
+    visibility:
+      mode: visible
+    applies_to: [ HELMET, CHESTPLATE, LEGGINGS, BOOTS, PICKAXE, SHOVEL, AXE, SWORD, HOE, SPEAR, RODS, BOWS, TRIDENT,
+                  MACE, SHEARS, FLINT_AND_STEEL, SHIELD, ELYTRA, BRUSH ]
+    max_level: 3
+    incompatibilities: []
+    costs:
+      mode: FORMULA
+      catalyst:
+        default:
+          material: DIAMOND
+          base: 1
+          per_level: 1
+          multiplier: 1.0
+      xp:
+        formula: LINEAR
+        base: 0
+        per_level: 5
+      bookshelf:
+        mode: REQUIRED
+        required:
+          base: 0
+          per_level: 7
