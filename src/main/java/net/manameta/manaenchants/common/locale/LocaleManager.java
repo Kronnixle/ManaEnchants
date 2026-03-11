@@ -5,7 +5,6 @@ import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.translation.TranslationStore;
 import net.manameta.manaenchants.ManaEnchants;
 import net.manameta.manaenchants.common.config.ConfigData;
-import org.bukkit.Bukkit;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

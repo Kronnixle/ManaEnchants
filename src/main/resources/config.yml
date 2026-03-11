@@ -20,6 +20,8 @@ config-version: 1
 # --------------------------------------------------
 # General
 # --------------------------------------------------
+
+# Used in help commands, or commands that list entries (e.g. /enchant list)
 entries_per_page: 8
 # https://docs.papermc.io/adventure/minimessage/format/
 prefix:
@@ -30,7 +32,9 @@ prefix:
 # Localization
 # --------------------------------------------------
 locale:
+  # Uses this language as the fallback if keys are missing.
   default: en
+  # If a key is missing, send a warning to console- if not we will display the translation key to the player.
   strict: true
 experience:
   # If true, the server uses vanilla Minecraft XP mechanics instead of the custom costs below.

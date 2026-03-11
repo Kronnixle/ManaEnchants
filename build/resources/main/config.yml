@@ -7,7 +7,7 @@
 # Thank you for downloading the ManaEnchants plugin.                               #
 #                                                                                  #
 # Delete this file to restore the config.yml to its default values.                #
-# Remember to use /manaenchats reload after saving any changes made to this file!  #
+# Remember to use the reload command after saving any changes made to this file!   #
 #                                                                                  #
 ####################################################################################
 # +------------------------------------------------------------------------------+ #
@@ -20,6 +20,8 @@ config-version: 1
 # --------------------------------------------------
 # General
 # --------------------------------------------------
+
+# Used in help commands, or commands that list entries (e.g. /enchant list)
 entries_per_page: 8
 # https://docs.papermc.io/adventure/minimessage/format/
 prefix:
@@ -30,12 +32,13 @@ prefix:
 # Localization
 # --------------------------------------------------
 locale:
+  # Uses this language as the fallback if keys are missing.
   default: en
+  # If a key is missing, send a warning to console- if not we will display the translation key to the player.
   strict: true
 experience:
-  # Enable or disable the custom XP system.
-  # If false, the server uses vanilla Minecraft XP mechanics.
-  enabled: false
+  # If true, the server uses vanilla Minecraft XP mechanics instead of the custom costs below.
+  vanilla: true
   # Cost formulas per level.
   # Example formulas:
   #   Vanilla: "2 * level + 7", "5 * level - 38", "9 * level - 158"
@@ -44,6 +47,9 @@ experience:
   costs:
     - min_level: 0
       formula: "100"
+  #  - min_level: 16
+  #    formula: "5 * level - 38"
+
   # Defines the percent of total XP the player loses on death.
   # 100 = lose all XP, 0 = keep all XP.
   death_penalty: 100
@@ -51,7 +57,7 @@ experience:
   # 100 = drops 0 experience points from the remaining amount
   # ex. If the player has 100 EXP points, death_penalty is 50, and lost exp is 50, then the total dropped experience points is 25.
   lost_exp: 75
-#
+
 # --------------------------------------------------
 # Sound Settings
 # --------------------------------------------------

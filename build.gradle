@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'xyz.jpenilla.run-paper' version '2.3.1'
     id 'com.gradleup.shadow' version '9.2.1'
     id 'maven-publish'
 }
@@ -39,7 +38,6 @@ tasks.withType(JavaCompile).configureEach {
 
 shadowJar {
     archiveClassifier.set('')
-    destinationDirectory.set(file('C:/Users/user-00/Desktop/Plugin Development/1.21.11 server/plugins'))
 
     mergeServiceFiles()
 }
@@ -58,7 +56,7 @@ publishing {
             from components.java
             groupId = 'net.manameta'
             artifactId = 'manaenchants'
-            version = project.version
+            version = '1.0.0'
         }
     }
 
@@ -73,9 +71,4 @@ publishing {
             }
         }
     }
-}
-
-tasks.runServer {
-    minecraftVersion('1.21.11')
-    pluginJars.from(tasks.shadowJar.archiveFile)
 }
