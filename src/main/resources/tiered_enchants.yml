@@ -63,27 +63,9 @@ config-version: 1
 #       Overrides take priority over formula for that level.
 #
 #   xp:
-#     formula: FLAT | LINEAR | TRIANGULAR | EXPONENTIAL | POWER | STEP | LOG
-#     base: <int>
-#     multiplier: <float>   (used in EXPONENTIAL, POWER, LOG)
-#     per_level: <int>      (used in LINEAR, TRIANGULAR and EXPONENTIAL)
-#     step_amount: <int>    (used in STEP)
-#     step_interval <int>   (used in STEP)
-#
-#     FLAT:
-#       xp = base
-#     LINEAR:
-#       xp = base + (level * per_level)
-#     TRIANGULAR:
-#       xp = base + ((level * (level + 1)) / 2) * per_level
-#     EXPONENTIAL:
-#       xp = base * (multiplier ^ (level - 1))
-#     POWER:
-#       xp = base * (level ^ multiplier)
-#     STEP:
-#       xp = base + floor(level / step_interval) * step_amount
-#     LOG:
-#       xp = base + log(level) * multiplier
+#     required_base_level: <int>        - How many XP levels this user must have to access this enchantment
+#     required_per_level: <int>         - How many extra XP levels this user must have per enchantment level to access this enchantment.
+#     formula: "2 + 2 * level",         - How many XP levels to take per enchantment upgrade
 #
 #   bookshelf:
 #     mode: REQUIRED | TIERED | IGNORED
@@ -94,7 +76,7 @@ config-version: 1
 #         per_level: <int>
 #       required_shelves = base + (level * per_level)
 #
-#     TIERED:e
+#     TIERED:
 #       tiers:
 #         <level>: <required_shelves>
 #
@@ -110,8 +92,10 @@ config-version: 1
 #   mode: PER_LEVEL
 #   levels:
 #     <level_number>:
+#       base_xp: <int>            - The XP required for the user to access this enchantment.
 #       catalyst:
-#         material: <MATERIAL>
+#         material: <MATERIAL>    - Can use either MATERIAL or ITEM, but not both!
+#         item: <STRING>          - Item must be found inside saved_items.yml
 #         amount: <int>
 #       xp: <int>
 #       bookshelf: <int>
@@ -145,6 +129,7 @@ config-version: 1
 #   overwritten so every 75 EXP = 1 EXP level.
 #
 # ============================================================
+
 enchants:
   protection:
     enabled: true
@@ -163,9 +148,9 @@ enchants:
           per_level: 8
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 3
+        required_base_level: 0
+        required_per_level: 0
+        formula: "3 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -188,9 +173,9 @@ enchants:
           per_level: 8
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 3
+        required_base_level: 0
+        required_per_level: 0
+        formula: "3 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -213,9 +198,9 @@ enchants:
           per_level: 2
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 3
+        required_base_level: 0
+        required_per_level: 0
+        formula: "3 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -238,9 +223,9 @@ enchants:
           per_level: 4
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 3
+        required_base_level: 0
+        required_per_level: 0
+        formula: "3 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -263,9 +248,9 @@ enchants:
           per_level: 4
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 3
+        required_base_level: 0
+        required_per_level: 0
+        formula: "3 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -288,9 +273,9 @@ enchants:
           per_level: 3
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 4
+        required_base_level: 0
+        required_per_level: 0
+        formula: "4 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -305,22 +290,15 @@ enchants:
     max_level: 1
     incompatibilities: [ ]
     costs:
-      mode: FORMULA
-      catalyst:
-        default:
-          material: KELP
-          base: 64
-          per_level: 64
-          multiplier: 1.0
-      xp:
-        formula: FLAT
-        base: 10
-        per_level: 0
-      bookshelf:
-        mode: REQUIRED
-        required:
-          base: 8
-          per_level: 0
+      mode: PER_LEVEL
+      levels:
+        1:
+          xp_base: 0
+          catalyst:
+            material: KELP
+            amount: 64
+          xp: 10
+          bookshelf: 8
   thorns:
     enabled: true
     rarity: COMMON
@@ -338,9 +316,9 @@ enchants:
           per_level: 16
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 5
+        required_base_level: 0
+        required_per_level: 0
+        formula: "5 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -363,9 +341,9 @@ enchants:
           per_level: 3
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 3
+        required_base_level: 0
+        required_per_level: 0
+        formula: "3 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -383,12 +361,14 @@ enchants:
       mode: PER_LEVEL
       levels:
         1:
+          xp_base: 10
           catalyst:
             material: ICE
             amount: 64
           xp: 8
           bookshelf: 5
         2:
+          xp_base: 15
           catalyst:
             material: PACKED_ICE
             amount: 64
@@ -411,9 +391,9 @@ enchants:
           per_level: 0
           multiplier: 2.0
       xp:
-        formula: TRIANGULAR
-        base: 0
-        per_level: 3
+        required_base_level: 0
+        required_per_level: 0
+        formula: "3 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -436,9 +416,9 @@ enchants:
           per_level: 14
           multiplier: 1.0
       xp:
-        formula: TRIANGULAR
-        base: 0
-        per_level: 2
+        required_base_level: 0
+        required_per_level: 0
+        formula: "3 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -461,9 +441,9 @@ enchants:
           per_level: 7
           multiplier: 1.0
       xp:
-        formula: TRIANGULAR
-        base: 0
-        per_level: 2
+        required_base_level: 0
+        required_per_level: 0
+        formula: "3 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -486,9 +466,9 @@ enchants:
           per_level: 8
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 10
+        required_base_level: 0
+        required_per_level: 0
+        formula: "10 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -511,9 +491,9 @@ enchants:
           per_level: 24
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 8
+        required_base_level: 0
+        required_per_level: 0
+        formula: "8 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -536,9 +516,9 @@ enchants:
           per_level: 4
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 8
+        required_base_level: 0
+        required_per_level: 0
+        formula: "8 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -561,9 +541,9 @@ enchants:
           per_level: 0
           multiplier: 2.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 5
+        required_base_level: 0
+        required_per_level: 0
+        formula: "5 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -578,22 +558,15 @@ enchants:
     max_level: 1
     incompatibilities: [ FORTUNE ]
     costs:
-      mode: FORMULA
-      catalyst:
-        default:
-          material: STRING
-          base: 64
-          per_level: 0
-          multiplier: 1.0
-      xp:
-        formula: FLAT
-        base: 18
-        per_level: 0
-      bookshelf:
-        mode: REQUIRED
-        required:
-          base: 10
-          per_level: 0
+      mode: PER_LEVEL
+      levels:
+        1:
+          xp_base: 0
+          catalyst:
+            material: STRING
+            amount: 64
+          xp: 18
+          bookshelf: 10
   fortune:
     enabled: true
     rarity: COMMON
@@ -611,9 +584,9 @@ enchants:
           per_level: 4
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 8
+        required_base_level: 0
+        required_per_level: 0
+        formula: "8 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -636,9 +609,9 @@ enchants:
           per_level: 0
           multiplier: 2.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 2
+        required_base_level: 0
+        required_per_level: 0
+        formula: "2 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -661,9 +634,9 @@ enchants:
           per_level: 8
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 10
+        required_base_level: 0
+        required_per_level: 0
+        formula: "10 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -681,6 +654,7 @@ enchants:
       mode: PER_LEVEL
       levels:
         1:
+          xp_base: 0
           catalyst:
             material: BLAZE_POWDER
             amount: 16
@@ -698,6 +672,7 @@ enchants:
       mode: PER_LEVEL
       levels:
         1:
+          xp_base: 0
           catalyst:
             material: ARROW
             amount: 64
@@ -720,9 +695,9 @@ enchants:
           per_level: 1
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 5
+        required_base_level: 0
+        required_per_level: 0
+        formula: "5 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -745,9 +720,9 @@ enchants:
           per_level: 0
           multiplier: 2.0
       xp:
-        formula: LINEAR
-        base: 2
-        per_level: 6
+        required_base_level: 0
+        required_per_level: 0
+        formula: "2 + 6 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -770,9 +745,9 @@ enchants:
           per_level: 0
           multiplier: 2.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 4
+        required_base_level: 0
+        required_per_level: 0
+        formula: "4 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -795,9 +770,9 @@ enchants:
           per_level: 0
           multiplier: 2.0
       xp:
-        formula: TRIANGULAR
-        base: 0
-        per_level: 1
+        required_base_level: 0
+        required_per_level: 0
+        formula: "2 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -820,9 +795,9 @@ enchants:
           per_level: 0
           multiplier: 2.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 5
+        required_base_level: 0
+        required_per_level: 0
+        formula: "5 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -840,6 +815,7 @@ enchants:
       mode: PER_LEVEL
       levels:
         1:
+          xp_base: 0
           catalyst:
             material: LIGHTNING_ROD
             amount: 16
@@ -857,6 +833,7 @@ enchants:
       mode: PER_LEVEL
       levels:
         1:
+          xp_base: 0
           catalyst:
             material: ARROW
             amount: 64
@@ -879,9 +856,9 @@ enchants:
           per_level: 0
           multiplier: 2.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 4
+        required_base_level: 0
+        required_per_level: 0
+        formula: "4 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -904,9 +881,9 @@ enchants:
           per_level: 16
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 4
+        required_base_level: 0
+        required_per_level: 0
+        formula: "4 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -929,9 +906,9 @@ enchants:
           per_level: 1
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 4
+        required_base_level: 0
+        required_per_level: 0
+        formula: "4 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -954,9 +931,9 @@ enchants:
           per_level: 1
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 5
+        required_base_level: 0
+        required_per_level: 0
+        formula: "5 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -979,9 +956,9 @@ enchants:
           per_level: 0
           multiplier: 2.0
       xp:
-        formula: LINEAR
-        base: 4
-        per_level: 4
+        required_base_level: 0
+        required_per_level: 0
+        formula: "4 + 4 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -1000,9 +977,10 @@ enchants:
       mode: PER_LEVEL
       levels:
         1:
+          xp_base: 0
           catalyst:
-            material: EMERALD
-            amount: 20
+            item: mending_emerald
+            amount: 1
           xp: 20
           bookshelf: 16
   soul_speed:
@@ -1022,9 +1000,9 @@ enchants:
           per_level: 0
           multiplier: 2.0
       xp:
-        formula: LINEAR
-        base: 5
-        per_level: 5
+        required_base_level: 0
+        required_per_level: 0
+        formula: "5 + 5 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -1047,9 +1025,9 @@ enchants:
           per_level: 8
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 8
+        required_base_level: 0
+        required_per_level: 0
+        formula: "8 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -1072,9 +1050,9 @@ enchants:
           per_level: 4
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 4
+        required_base_level: 0
+        required_per_level: 0
+        formula: "4 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -1097,9 +1075,9 @@ enchants:
           per_level: 8
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 2
+        required_base_level: 0
+        required_per_level: 0
+        formula: "2 * level"
       bookshelf:
         mode: REQUIRED
         required:
@@ -1123,9 +1101,9 @@ enchants:
           per_level: 1
           multiplier: 1.0
       xp:
-        formula: LINEAR
-        base: 0
-        per_level: 5
+        required_base_level: 0
+        required_per_level: 0
+        formula: "5 * level"
       bookshelf:
         mode: REQUIRED
         required:

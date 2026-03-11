@@ -2,6 +2,7 @@ package net.manameta.manaenchants.common.locale;
 
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.translation.TranslationStore;
 import net.manameta.manaenchants.ManaEnchants;
 import net.manameta.manaenchants.common.config.ConfigData;
 import org.bukkit.Bukkit;
@@ -21,7 +22,6 @@ import java.util.regex.Pattern;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.translation.GlobalTranslator;
-import net.kyori.adventure.translation.TranslationStore;
 
 public final class LocaleManager {
 
@@ -69,10 +69,8 @@ public final class LocaleManager {
         String path = "locale/" + defaultLanguage + ".properties";
 
         try (InputStream in = LocaleManager.class.getClassLoader().getResourceAsStream(path)) {
-            if (in == null) {
-                Bukkit.getLogger().warning("Missing bundled locale: " + path);
-                return;
-            }
+            if (in == null) return;
+
             merge(defaultLanguage, loadProperties(in));
         } catch (IOException e) {
             e.printStackTrace();
@@ -98,6 +96,7 @@ public final class LocaleManager {
      * Registers all loaded messages with Adventure GlobalTranslator for translatable components
      */
     private static void registerAdventureTranslations() {
+
         TranslationStore.StringBased<MessageFormat> registry = TranslationStore.messageFormat(TRANSLATION_KEY);
 
         for (Map.Entry<String, Map<String, String>> entry : locales.entrySet()) {
@@ -128,8 +127,7 @@ public final class LocaleManager {
         if (value != null) return value;
 
         if (ConfigData.get().getStrict()) {
-            ManaEnchants.getInstance().getLogger()
-                    .warning("Could not resolve the key: " + key + " for locale: " + locale);
+            ManaEnchants.getInstance().getLogger().warning("Could not resolve the key: " + key + " for locale: " + locale);
         }
         return key;
     }

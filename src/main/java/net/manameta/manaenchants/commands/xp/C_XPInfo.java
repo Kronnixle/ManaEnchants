@@ -2,9 +2,8 @@ package net.manameta.manaenchants.commands.xp;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.manameta.manaenchants.common.config.ConfigData;
 import net.manameta.manaenchants.common.helpers.MessageHelpers;
-import net.manameta.manaenchants.common.helpers.PrefixHelpers;
 import net.manameta.manaenchants.xp.override.XPManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -17,7 +16,7 @@ final class C_XPInfo {
 
     static int execute(@Nonnull Audience sender) {
         if (!(sender instanceof Player player)) {
-            MessageHelpers.error(sender, PrefixHelpers.XP_PREFIX, "commands.error.player.command");
+            MessageHelpers.error(sender, ConfigData.get().getXPPrefix(), "commands.error.player.command");
             return 0;
         }
 
@@ -26,18 +25,20 @@ final class C_XPInfo {
 
     static int execute(@Nonnull Audience sender, @Nonnull String playerResolver) {
         Player player = Bukkit.getPlayer(playerResolver);
+        
+        ConfigData config = ConfigData.get();
         if (player == null) {
-            MessageHelpers.error(sender, PrefixHelpers.XP_PREFIX, "commands.error.player.not.found",
-                    Component.text(playerResolver, NamedTextColor.GRAY));
+            MessageHelpers.error(sender, ConfigData.get().getXPPrefix(), "commands.error.player.not.found",
+                    Component.text(playerResolver, ConfigData.get().getErrorHighlightColour()));
             return 0;
         }
-
+        
         sender.sendMessage(Component.empty());
-        sender.sendMessage(PrefixHelpers.XP_PREFIX.append(Component.translatable("commands.xp.info.display", NamedTextColor.GRAY,
-                Component.text(player.getName(), NamedTextColor.GOLD),
-                Component.text(player.getLevel(), NamedTextColor.YELLOW),
-                Component.text(XPManager.getTotalXP(player), NamedTextColor.YELLOW),
-                Component.text(XPManager.getXPToNextLevel(player), NamedTextColor.YELLOW))));
+        sender.sendMessage(ConfigData.get().getXPPrefix().append(Component.translatable("commands.xp.info.display", config.getDescriptionColour(),
+                Component.text(player.getName(), config.getHeaderColour()),
+                Component.text(player.getLevel(), config.getSuccessHighlightColour()),
+                Component.text(XPManager.getTotalXP(player), config.getSuccessHighlightColour()),
+                Component.text(XPManager.getXPToNextLevel(player), config.getSuccessHighlightColour()))));
 
         return 1;
     }

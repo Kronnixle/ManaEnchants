@@ -77,5 +77,5 @@ public final class SavedItems {
 
     private static class InstanceHolder { private static SavedItems instance = new SavedItems(); }
     public static SavedItems get() { return InstanceHolder.instance; }
-    public static void reload() { SavedItems instance = new SavedItems(); }
+    public static void reload() { InstanceHolder.instance = new SavedItems(); }
 }

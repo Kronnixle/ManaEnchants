@@ -1,7 +1,6 @@
 package net.manameta.manaenchants.common.helpers;
 
 public final class PermissionHelpers {
-
     /** Prevent instantization */
     private PermissionHelpers() {}
 

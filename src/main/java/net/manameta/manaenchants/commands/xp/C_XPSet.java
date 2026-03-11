@@ -2,11 +2,10 @@ package net.manameta.manaenchants.commands.xp;
 
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.manameta.api.core.commands.HelpID;
-import net.manameta.api.core.commands.ParentCommand;
+import net.manameta.manaenchants.common.config.ConfigData;
+import net.manameta.manaenchants.common.helpers.HelpID;
+import net.manameta.manaenchants.common.helpers.ParentCommand;
 import net.manameta.manaenchants.common.helpers.MessageHelpers;
-import net.manameta.manaenchants.common.helpers.PrefixHelpers;
 import net.manameta.manaenchants.xp.override.XPManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -20,8 +19,8 @@ final class C_XPSet {
     static int execute(@Nonnull Audience sender, @Nonnull String playerResolver, String amountResolver) {
         Player player = Bukkit.getPlayer(playerResolver);
         if (player == null) {
-            MessageHelpers.error(sender, PrefixHelpers.XP_PREFIX, "commands.error.player.not.found",
-                    Component.text(playerResolver, NamedTextColor.GRAY));
+            MessageHelpers.error(sender, ConfigData.get().getXPPrefix(), "commands.error.player.not.found",
+                    Component.text(playerResolver, ConfigData.get().getErrorHighlightColour()));
             return 0;
         }
 
@@ -34,8 +33,8 @@ final class C_XPSet {
 
                 XPManager.setXPLevels(player, amount);
 
-                sendSuccess(sender, player.getName(), Component.translatable("commands.xp.levels.of", NamedTextColor.YELLOW,
-                        Component.text(amount, NamedTextColor.YELLOW)));
+                sendSuccess(sender, player.getName(), Component.translatable("commands.xp.levels.of", ConfigData.get().getSuccessHighlightColour(),
+                        Component.text(amount, ConfigData.get().getSuccessHighlightColour())));
                 return 1;
             }
 
@@ -44,24 +43,24 @@ final class C_XPSet {
 
             XPManager.setTotalXP(player, amount);
 
-            sendSuccess(sender, player.getName(), Component.text(amount, NamedTextColor.YELLOW));
+            sendSuccess(sender, player.getName(), Component.text(amount, ConfigData.get().getSuccessHighlightColour()));
             return 1;
 
         } catch (NumberFormatException ignored) {
-            MessageHelpers.error(sender, PrefixHelpers.XP_PREFIX, "commands.error.unknown.input",
-                    Component.text(amountResolver, NamedTextColor.GRAY));
+            MessageHelpers.error(sender, ConfigData.get().getXPPrefix(), "commands.error.unknown.input",
+                    Component.text(amountResolver, ConfigData.get().getErrorHighlightColour()));
             return 0;
         }
     }
 
     private static void sendSuccess(@Nonnull Audience sender, String playerName, Component amountComponent) {
-        MessageHelpers.success(sender, PrefixHelpers.XP_PREFIX, "commands.xp.set.success",
-                Component.text(playerName, NamedTextColor.YELLOW),
+        MessageHelpers.success(sender, ConfigData.get().getXPPrefix(), "commands.xp.set.success",
+                Component.text(playerName, ConfigData.get().getSuccessHighlightColour()),
                 amountComponent);
     }
 
     static int execute(@Nonnull Audience sender) {
-        MessageHelpers.formatError(sender, PrefixHelpers.XP_PREFIX, ParentCommand.XP, HelpID.SET);
+        MessageHelpers.formatError(sender, ParentCommand.XP, HelpID.SET);
         return 1;
     }
 }

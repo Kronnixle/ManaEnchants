@@ -2,12 +2,6 @@ name: ManaEnchants
 version: '1.0.0'
 main: net.manameta.manaenchants.ManaEnchants
 api-version: '1.21'
-dependencies:
-  server:
-    ManaCore:
-      load: BEFORE
-      required: true
-      join-classpath: true
 authors: [ _Kron ]
 description: Enchantment override system developed by _Kron
 website: www.manameta.net

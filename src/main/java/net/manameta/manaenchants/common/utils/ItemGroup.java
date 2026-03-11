@@ -18,11 +18,31 @@ public enum ItemGroup {
     CHEST,
     LEGGINGS,
     BOOTS,
+    BOWS,
+    RODS,
+    MACE,
+    TRIDENT,
+    SHIELD,
+    ELYTRA,
+    BRUSH,
+    SPEAR,
+    SWORDS,
+    FLINT_AND_STEEL,
     OTHER;
 
     private static @NonNull ItemGroup resolveToolGroup(@NonNull Material material) {
         String name = material.name();
 
+        if (material == Material.ELYTRA) return ELYTRA;
+        if (material == Material.SHEARS) return SHEARS;
+        if (material == Material.BRUSH) return BRUSH;
+        if (material == Material.MACE) return MACE;
+        if (material == Material.TRIDENT) return TRIDENT;
+        if (material == Material.SHIELD) return SHIELD;
+        if (material == Material.FLINT_AND_STEEL) return FLINT_AND_STEEL;
+
+        if (name.endsWith("_SWORD")) return SWORDS;
+        if (name.endsWith("_SPEAR")) return SPEAR;
         if (name.endsWith("_PICKAXE")) return PICKAXE;
         if (name.endsWith("_AXE")) return AXE;
         if (name.endsWith("_SHOVEL")) return SHOVEL;
@@ -31,7 +51,8 @@ public enum ItemGroup {
         if (name.endsWith("_CHESTPLATE")) return CHEST;
         if (name.endsWith("_LEGGINGS")) return LEGGINGS;
         if (name.endsWith("_BOOTS")) return BOOTS;
-        if (material == Material.SHEARS) return SHEARS;
+        if (name.endsWith("BOW")) return BOWS;
+        if (name.endsWith("ROD") || name.endsWith("_STICK")) return RODS;
 
         return OTHER;
     }

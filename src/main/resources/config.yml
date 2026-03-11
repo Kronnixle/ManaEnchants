@@ -1,54 +1,51 @@
+####################################################################################
+# +------------------------------------------------------------------------------+ #
+# |                             ManaEnchants Config                              | #
+# +------------------------------------------------------------------------------+ #
+####################################################################################
+#                                                                                  #
+# Thank you for downloading the ManaEnchants plugin.                               #
+#                                                                                  #
+# Delete this file to restore the config.yml to its default values.                #
+# Remember to use the reload command after saving any changes made to this file!   #
+#                                                                                  #
+####################################################################################
+# +------------------------------------------------------------------------------+ #
+# |                               General Settings                               | #
+# +------------------------------------------------------------------------------+ #
+####################################################################################
+# !!! DO NOT CHANGE THIS VALUE !!!
+# This is used for internal version tracking and migrations.
 config-version: 1
-
-sounds:
-  error:
-    key: minecraft:entity.wandering_trader.no
-    volume: 1.0
-    pitch: 1.0
-    seed: 5
-  click:
-    key: minecraft:ui.button.click
-    volume: 1.0
-    pitch: 1.0
-    seed: 1
-  chat_notify:
-    key: minecraft:block.note_block.chime
-    volume: 1.0
-    pitch: 1.0
-    seed: 1
-  success:
-    key: minecraft:entity.villager.yes
-    volume: 1.0
-    pitch: 1.5
-    seed: 2
-  level_up:
-    key: minecraft:entity.player.levelup
-    volume: 1.0
-    pitch: 1.0
-    seed: 1
-
+# --------------------------------------------------
+# General
+# --------------------------------------------------
+entries_per_page: 8
+# https://docs.papermc.io/adventure/minimessage/format/
+prefix:
+  core: "<gray>[<gold>ManaEnchants<gray>] <reset>"
+  enchant: "<gray>[<gold>Enchant<gray>] <reset>"
+  xp: "<gray>[<gold>XP<gray>] <reset>"
+# --------------------------------------------------
+# Localization
+# --------------------------------------------------
+locale:
+  default: en
+  strict: true
 experience:
-  # Enable or disable the custom XP system.
-  # If false, the server uses vanilla Minecraft XP mechanics.
-  enabled: true
+  # If true, the server uses vanilla Minecraft XP mechanics instead of the custom costs below.
+  vanilla: true
   # Cost formulas per level.
-  # Each entry applies to all levels >= min_level.
-  # You only need one entry for a flat XP per level system.
   # Example formulas:
   #   Vanilla: "2 * level + 7", "5 * level - 38", "9 * level - 158"
   #   Flat: "100"
   #   Custom: "100 * level", "120 * level", etc.
   costs:
     - min_level: 0
-      formula: "100"  # default flat XP per level
-  # Level-up sound configuration.
-  # Any valid Minecraft sound can be used.
-  # If seed is -1, then any random seed will be used for this sound.
-  sound:
-    level_up: minecraft:entity.player.levelup
-    volume: 1.0
-    pitch: 1.0
-    seed: -1
+      formula: "100"
+  #  - min_level: 16
+  #    formula: "5 * level - 38"
+
   # Defines the percent of total XP the player loses on death.
   # 100 = lose all XP, 0 = keep all XP.
   death_penalty: 100
@@ -56,3 +53,55 @@ experience:
   # 100 = drops 0 experience points from the remaining amount
   # ex. If the player has 100 EXP points, death_penalty is 50, and lost exp is 50, then the total dropped experience points is 25.
   lost_exp: 75
+
+# --------------------------------------------------
+# Sound Settings
+# --------------------------------------------------
+#
+# Key of the sound: https://minecraft.wiki/w/Category:Sound_effects
+# Volume of the sound (1.0 = normal, 0.0 = silent).
+# Pitch of the sound (1.0 = normal, >1 = higher, <1 = lower).
+# Optional seed to vary sound playback for randomness.
+sounds:
+  # Sound played for errors or invalid actions.
+  error:
+    key: minecraft:entity.wandering_trader.no
+    volume: 1.0
+    pitch: 1.0
+    seed: 5
+  # Sound played when clicking UI elements.
+  click:
+    key: minecraft:ui.button.click
+    volume: 1.0
+    pitch: 1.0
+    seed: 1
+  # Sound played for successfully ran commands.
+  success:
+    key: minecraft:entity.villager.yes
+    volume: 1.0
+    pitch: 1.5
+    seed: 2
+  # Sound played when the player levels up.
+  level_up:
+    key: minecraft:entity.player.levelup
+    volume: 1.0
+    pitch: 1.0
+    seed: 1
+  # Sound played when applying enchantments.
+  enchant:
+    key: minecraft:block.enchantment_table.use
+    volume: 1.0
+    pitch: 1.0
+    seed: -1
+# https://htmlcolorcodes.com/minecraft-color-codes/
+colours:
+  error: "#FF5555"
+  error_highlight: "#AAAAAA"
+  success: "#55FF55"
+  success_highlight: "#FFFF55"
+  description: "#AAAAAA"
+  description_highlight: "#FFFF55"
+  header: "#FFAA00"
+  hover: "#AAAAAA"
+  page: "#55FFFF"
+  enchant: "#FF55FF"

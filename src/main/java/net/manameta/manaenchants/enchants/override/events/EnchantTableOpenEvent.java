@@ -9,7 +9,7 @@ import org.jspecify.annotations.NonNull;
 
 public class EnchantTableOpenEvent extends Event implements Cancellable {
     private static final HandlerList HANDLERS = new HandlerList();
-    private boolean cancelled = false;
+    private boolean cancelled;
 
     @SuppressWarnings("unused")
     public static HandlerList getHandlerList() {

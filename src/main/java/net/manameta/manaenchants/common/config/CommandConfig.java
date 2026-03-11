@@ -1,9 +1,8 @@
 package net.manameta.manaenchants.common.config;
 
-import net.manameta.api.core.commands.CommandConfigEntry;
-import net.manameta.api.core.commands.HelpID;
-import net.manameta.api.core.commands.PaperHelpEntry;
-import net.manameta.api.core.commands.ParentCommand;
+import net.manameta.manaenchants.common.helpers.HelpID;
+import net.manameta.manaenchants.common.helpers.HelpEntry;
+import net.manameta.manaenchants.common.helpers.ParentCommand;
 import net.manameta.manaenchants.ManaEnchants;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,7 +15,7 @@ import java.util.*;
 
 @Singleton
 public final class CommandConfig {
-    private final Map<ParentCommand, EnumMap<HelpID, PaperHelpEntry>> helpEntries = new EnumMap<>(ParentCommand.class);
+    private final Map<ParentCommand, EnumMap<HelpID, HelpEntry>> helpEntries = new EnumMap<>(ParentCommand.class);
     private final EnumMap<ParentCommand, EnumMap<HelpID, CommandConfigEntry>> commandConfig = new EnumMap<>(ParentCommand.class);
 
     private CommandConfig() {
@@ -34,14 +33,14 @@ public final class CommandConfig {
         }
     }
 
-    public Map<HelpID, PaperHelpEntry> getParent(@NotNull ParentCommand parent) { return helpEntries.get(parent); }
+    public Map<HelpID, HelpEntry> getParent(@NotNull ParentCommand parent) { return helpEntries.get(parent); }
 
-    public PaperHelpEntry getEntry(@NotNull ParentCommand parent, @NotNull HelpID id) {
+    public HelpEntry getEntry(@NotNull ParentCommand parent, @NotNull HelpID id) {
         return Objects.requireNonNull(helpEntries.get(parent), "No help entries registered for " + parent + " " + id).get(id);
     }
 
     private void buildHelpMap(@NotNull ParentCommand parent, @NotNull Iterable<HelpID> ids) {
-        EnumMap<HelpID, PaperHelpEntry> map = new EnumMap<>(HelpID.class);
+        EnumMap<HelpID, HelpEntry> map = new EnumMap<>(HelpID.class);
 
         for (HelpID helpID : ids) {
             List<String> aliases = getCommandAliases(parent, helpID);
@@ -55,7 +54,7 @@ public final class CommandConfig {
 
             String formatKey = "commands." + parent.name().toLowerCase() + "." + helpID.name().toLowerCase() + ".format";
 
-            map.put(helpID, new PaperHelpEntry(helpID, formatKey, aliases, shortDescKey, descKeys));
+            map.put(helpID, new HelpEntry(helpID, formatKey, aliases, shortDescKey, descKeys));
         }
 
         helpEntries.put(parent, map);

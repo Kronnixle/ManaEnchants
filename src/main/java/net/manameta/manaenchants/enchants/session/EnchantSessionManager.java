@@ -1,6 +1,6 @@
 package net.manameta.manaenchants.enchants.session;
 
-import net.manameta.manaenchants.enchants.MerchantGUI;
+import net.manameta.manaenchants.common.gui.MerchantGUI;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.view.MerchantView;

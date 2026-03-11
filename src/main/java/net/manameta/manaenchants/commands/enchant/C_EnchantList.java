@@ -5,7 +5,6 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.manameta.manaenchants.common.config.ConfigData;
 import net.manameta.manaenchants.common.helpers.MessageHelpers;
 import net.manameta.manaenchants.enchants.TieredEnchantsConfig;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 
 final class C_EnchantList {
-
     /** Prevent instantization */
     private C_EnchantList() {}
 
@@ -38,9 +36,9 @@ final class C_EnchantList {
 
         // Header
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.translatable("commands.enchant.list.header", NamedTextColor.GOLD,
-                Component.text(page, NamedTextColor.YELLOW),
-                Component.text(maxPage, NamedTextColor.YELLOW)));
+        sender.sendMessage(Component.translatable("commands.enchant.list.header", ConfigData.get().getHeaderColour(),
+                Component.text(page, ConfigData.get().getDescriptionHighlightColour()),
+                Component.text(maxPage, ConfigData.get().getDescriptionHighlightColour())));
         sender.sendMessage(Component.empty());
 
         for (int i = startIndex; i < endIndex; i++) {
@@ -57,8 +55,9 @@ final class C_EnchantList {
     }
 
     private static @NonNull Component buildEnchantLine(String enchantment) {
-        return Component.text(" - ", NamedTextColor.GRAY).append(Component.text(enchantment, NamedTextColor.YELLOW))
-                .hoverEvent(HoverEvent.showText(Component.translatable("text.click.details", NamedTextColor.GRAY)))
+        ConfigData config = ConfigData.get();
+        return Component.text(" - ", config.getDescriptionColour()).append(Component.text(enchantment, config.getDescriptionHighlightColour()))
+                .hoverEvent(HoverEvent.showText(Component.translatable("text.click.details", config.getHoverColour())))
                 .clickEvent(ClickEvent.callback(audience -> C_EnchantInfo.execute(audience, enchantment),
                             ClickCallback.Options.builder().uses(-1).build()));
     }

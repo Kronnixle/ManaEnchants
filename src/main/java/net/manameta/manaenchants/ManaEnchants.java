@@ -6,7 +6,6 @@ import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import net.manameta.manaenchants.commands.core.CoreCommand;
 import net.manameta.manaenchants.commands.enchant.EnchantCommand;
 import net.manameta.manaenchants.commands.xp.XPCommand;
-import net.manameta.manaenchants.common.config.ConfigData;
 import net.manameta.manaenchants.common.config.ConfigurationManager;
 import net.manameta.manaenchants.common.gui.GUIListener;
 import net.manameta.manaenchants.common.gui.GUIManager;
@@ -17,12 +16,11 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Locale;
-import java.util.ResourceBundle;
-import java.util.logging.Logger;
-
+/**
+ * Reimplement ManaAPI support
+ *  - However soft-depend it.
+ */
 public class ManaEnchants extends JavaPlugin {
-
     private static ManaEnchants instance;
     public static ManaEnchants getInstance() { return instance; }
 
@@ -37,10 +35,6 @@ public class ManaEnchants extends JavaPlugin {
 
         // Load locale
         LocaleManager.loadAllLocales();
-
-        Logger logger = getLogger();
-        Locale locale = ConfigData.get().getDefaultLocale();
-        logger.setResourceBundle(ResourceBundle.getBundle("locale.logger", locale));
 
         // Commands
         LifecycleEventManager<@NotNull Plugin> manager = getLifecycleManager();

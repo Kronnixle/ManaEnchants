@@ -5,8 +5,8 @@ import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.manameta.api.core.commands.ParentCommand;
+import net.manameta.manaenchants.common.config.ConfigData;
+import net.manameta.manaenchants.common.helpers.ParentCommand;
 import net.manameta.manaenchants.ManaEnchants;
 import net.manameta.manaenchants.common.helpers.PermissionHelpers;
 import org.bukkit.entity.Player;
@@ -26,21 +26,22 @@ final class C_CoreVersion {
      */
     static int execute(@Nonnull Audience sender) {
         PluginMeta pluginMeta = ManaEnchants.getInstance().getPluginMeta();
-        sender.sendMessage(Component.text(pluginMeta.getDisplayName(), NamedTextColor.GOLD));
+        ConfigData config = ConfigData.get();
+        sender.sendMessage(Component.text(pluginMeta.getDisplayName(), config.getHeaderColour()));
         sender.sendMessage(Component.empty());
 
-        sender.sendMessage(Component.text("Description:", NamedTextColor.AQUA)
-                .append(Component.text(" " + pluginMeta.getDescription(), NamedTextColor.YELLOW)));
+        sender.sendMessage(Component.translatable("commands.core.version.description", config.getDescriptionColour(),
+                Component.text(" " + pluginMeta.getDescription(), config.getDescriptionHighlightColour())));
 
-        sender.sendMessage(Component.text("Website:", NamedTextColor.AQUA)
-                .append(Component.text(" " + pluginMeta.getWebsite(), NamedTextColor.YELLOW)));
+        sender.sendMessage(Component.translatable("commands.core.version.website", config.getDescriptionColour(),
+                Component.text(" " + pluginMeta.getWebsite(), config.getDescriptionHighlightColour())));
 
         if (sender instanceof Player player && !player.hasPermission(PermissionHelpers.MANAENCHANTS_HELP)) return 1;
 
         sender.sendMessage(Component.empty());
 
-        sender.sendMessage(Component.translatable("commands.core.help", NamedTextColor.YELLOW)
-                .hoverEvent(HoverEvent.showText(Component.translatable("commands.core.help", NamedTextColor.GRAY)))
+        sender.sendMessage(Component.translatable("commands.core.help", config.getDescriptionHighlightColour())
+                .hoverEvent(HoverEvent.showText(Component.translatable("commands.core.help", config.getDescriptionColour())))
                 .clickEvent(ClickEvent.callback(audience -> C_Help.execute(sender, ParentCommand.MANAENCHANTS, 1))));
 
         return 1;

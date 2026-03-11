@@ -16,7 +16,7 @@ import java.util.Collection;
 import java.util.List;
 
 public class ItemCreator {
-    public static @NotNull ItemStack create(@NotNull Material material, int amount, @NotNull Component itemName) {
+    private static @NotNull ItemStack create(@NotNull Material material, int amount, @NotNull Component itemName) {
         ItemStack item = new ItemStack(material, amount);
         item.editMeta(meta -> meta.displayName(itemName.decoration(TextDecoration.ITALIC, false)));
         return item;
@@ -31,20 +31,6 @@ public class ItemCreator {
                 newLore.add(l.decoration(TextDecoration.ITALIC, false));
             }
             meta.lore(newLore);
-        });
-        return item;
-    }
-
-    public static @NotNull ItemStack create(@NotNull Material material, int amount, @NotNull Component itemName,
-                                            @NotNull Collection<? extends Component> lore, boolean glow) {
-        ItemStack item = create(material, amount, itemName);
-        item.editMeta(meta -> {
-            List<Component> newLore = new ArrayList<>(lore.size());
-            for (Component l : lore) {
-                newLore.add(l.decoration(TextDecoration.ITALIC, false));
-            }
-            meta.lore(newLore);
-            meta.setEnchantmentGlintOverride(glow);
         });
         return item;
     }

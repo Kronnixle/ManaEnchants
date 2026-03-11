@@ -6,10 +6,11 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickCallback;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.manameta.manaenchants.common.config.ConfigData;
 import net.manameta.manaenchants.xp.model.LevelCost;
+import org.jspecify.annotations.NonNull;
 
 import javax.annotation.Nonnull;
 
@@ -20,50 +21,55 @@ final class C_CoreConfig {
     static int execute(@Nonnull Audience sender) {
         ConfigData config = ConfigData.get();
 
-        Component header = Component.translatable("commands.config.header", NamedTextColor.AQUA);
+        TextColor headerColour = config.getHeaderColour();
+        TextColor descriptionColour = config.getDescriptionColour();
+        TextColor highlightColour = config.getDescriptionHighlightColour();
 
-        Component defaultLocale = Component.translatable("commands.config.default.locale", NamedTextColor.YELLOW,
-                Component.text(config.getDefaultLocale().getDisplayName(), NamedTextColor.WHITE));
+        Component header = Component.translatable("commands.config.header", headerColour);
 
-        Component logLevel = Component.translatable("commands.config.log.level", NamedTextColor.YELLOW,
-                Component.text(config.getLogLevel().toString(), NamedTextColor.WHITE));
+        Component defaultLocale = Component.translatable("commands.config.default.locale", highlightColour,
+                Component.text(config.getDefaultLocale().getDisplayName(), descriptionColour));
 
-        Component xpCosts = Component.translatable("commands.config.xp.costs", NamedTextColor.GOLD);
+        Component xpCosts = Component.translatable("commands.config.xp.costs", headerColour);
         for (LevelCost levelCost : config.getXpCosts()) {
             xpCosts = xpCosts.appendNewline()
-                    .append(Component.translatable("commands.config.xp.costs.format", NamedTextColor.YELLOW,
-                            Component.text(levelCost.minLevel(), NamedTextColor.WHITE),
-                            Component.text(levelCost.formula(), NamedTextColor.WHITE)));
+                    .append(Component.translatable("commands.config.xp.costs.format", highlightColour,
+                            Component.text(levelCost.minLevel(), descriptionColour),
+                            Component.text(levelCost.formula(), descriptionColour))
+                    );
         }
 
-        Component deathPenalty = Component.translatable("commands.config.death.penalty", NamedTextColor.YELLOW,
-                Component.text(config.getDeathPenalty(), NamedTextColor.WHITE));
+        Component deathPenalty = Component.translatable("commands.config.death.penalty", highlightColour,
+                Component.text(config.getDeathPenalty(), descriptionColour));
+        Component lostXP = Component.translatable("commands.config.lost.exp", highlightColour,
+                Component.text(config.getLostEXP(), descriptionColour));
 
-        Component soundMessage = Component.translatable("commands.core.config.sound", NamedTextColor.YELLOW,
-                buildSoundComponent("Error Sound", config.getErrorSound()),
-                buildSoundComponent("Click Sound", config.getClickSound()),
-                buildSoundComponent("Chat Notify Sound", config.getChatNotifySound()),
-                buildSoundComponent("Success Sound", config.getSuccessSound()),
-                buildSoundComponent("Level Up Sound", config.getLevelUpSound()));
+        Component soundMessage = Component.translatable("commands.core.config.sound", highlightColour,
+                buildSoundComponent("commands.core.sound.error", config.getErrorSound()),
+                buildSoundComponent("commands.core.sound.click", config.getClickSound()),
+                buildSoundComponent("commands.core.sound.success", config.getSuccessSound()),
+                buildSoundComponent("commands.core.sound.level_up", config.getLevelUpSound()),
+                buildSoundComponent("commands.core.sound.enchant", config.getEnchantSound()));
 
         sender.sendMessage(Component.empty());
         sender.sendMessage(header);
         sender.sendMessage(Component.empty());
         sender.sendMessage(defaultLocale);
-        sender.sendMessage(logLevel);
         sender.sendMessage(Component.empty());
         sender.sendMessage(xpCosts);
         sender.sendMessage(Component.empty());
         sender.sendMessage(deathPenalty);
+        sender.sendMessage(lostXP);
         sender.sendMessage(Component.empty());
         sender.sendMessage(soundMessage);
         sender.sendMessage(Component.empty());
         return 1;
     }
     
-    private static Component buildSoundComponent(@Nonnull String soundName, @Nonnull Sound sound) {
-        return Component.text(soundName, NamedTextColor.WHITE, TextDecoration.ITALIC)
-                .hoverEvent(HoverEvent.showText(Component.translatable("commands.core.config.sound.hover", NamedTextColor.GRAY)))
+    private static @NonNull Component buildSoundComponent(@Nonnull String soundKey, @Nonnull Sound sound) {
+
+        return Component.translatable(soundKey, ConfigData.get().getDescriptionColour(), TextDecoration.ITALIC)
+                .hoverEvent(HoverEvent.showText(Component.translatable("commands.core.config.sound.hover", ConfigData.get().getHoverColour())))
                 .clickEvent(ClickEvent.callback(audience -> audience.playSound(sound), ClickCallback.Options.builder().uses(-1).build()));
     }
 }

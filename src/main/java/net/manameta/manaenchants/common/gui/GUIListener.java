@@ -17,11 +17,6 @@ public class GUIListener implements Listener {
     }
 
     @EventHandler
-    public void onOpen(InventoryOpenEvent inventoryOpenEvent) {
-        guiManager.handleOpen(inventoryOpenEvent);
-    }
-
-    @EventHandler
     public void onClose(InventoryCloseEvent event) {
         guiManager.handleClose(event);
     }

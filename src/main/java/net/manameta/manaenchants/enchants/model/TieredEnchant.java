@@ -4,11 +4,12 @@ import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextDecoration;
-import net.manameta.manaenchants.common.utils.ManaLogger;
-import net.manameta.manaenchants.enchants.utils.costs.catalyst.CatalystCost;
-import net.manameta.manaenchants.enchants.utils.costs.CostModel;
+import net.kyori.adventure.text.format.TextColor;
+import net.manameta.manaenchants.common.config.ConfigData;
+import net.manameta.manaenchants.common.locale.LocaleManager;
+import net.manameta.manaenchants.enchants.costs.catalyst.CatalystCost;
+import net.manameta.manaenchants.enchants.costs.CostModel;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.enchantments.EnchantmentOffer;
@@ -19,10 +20,7 @@ import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.Nullable;
 
 import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Set;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @param key                 "efficiency"
@@ -45,11 +43,12 @@ public record TieredEnchant(String key, boolean enabled, Rarity rarity, Visibili
         this.costModel = Objects.requireNonNull(costModel);
     }
 
-    public @Nullable MerchantRecipe toMerchantRecipe(@Nonnull ItemStack item, int bookshelves, @Nonnull Player player) {
+    @Nullable
+    public MerchantRecipe toMerchantRecipe(@Nonnull ItemStack item, int bookshelves, @Nonnull Player player) {
         Enchantment enchantment = resolveEnchantment();
 
         if (enchantment == null) {
-            ManaLogger.warning("enchants.error.key", key);
+            Bukkit.getLogger().warning("Could not find the enchantment with the key " + key);
             return null;
         }
 
@@ -59,34 +58,36 @@ public record TieredEnchant(String key, boolean enabled, Rarity rarity, Visibili
 
         if (!isCompatible(item)) return null;
 
-
         int nextLevel = currentLevel + 1;
 
-        int xpCost = costModel.getXpCost(nextLevel);
+        // Get both values from cost model
+        int xpRequired = costModel.getXPRequirementCost(nextLevel);     // levels required to unlock
+        int xpCost = costModel.getXpCost(nextLevel);                    // levels consumed to apply
+
         int playerLevel = player.getLevel();
+        int bookshelfRequirement = costModel.getBookshelfRequirement(currentLevel);
+        CatalystCost catalystCost = costModel.getCatalyst(nextLevel);
 
+        // Clone and enchant result
         ItemStack resultItem = item.clone();
-
         resultItem.addUnsafeEnchantment(enchantment, nextLevel);
 
-
-        int bookshelfRequirement = costModel.getBookshelfRequirement(currentLevel);
-
+        // If not enough bookshelves, show a recipe with crossed-out ingredient
         if (bookshelves < bookshelfRequirement) {
             MerchantRecipe recipe = new MerchantRecipe(resultItem.clone(), 0);
-
             recipe.addIngredient(ItemStack.of(Material.BOOKSHELF, bookshelfRequirement));
-
             return recipe;
         }
 
-        int maxUses = playerLevel >= xpCost ? 1 : 0;
-
-        CatalystCost catalystCost = costModel.getCatalyst(nextLevel);
+        // Determine if player meets XP requirements
+        int maxUses = (playerLevel >= xpRequired && playerLevel >= xpCost) ? 1 : 0;
 
         MerchantRecipe recipe = new MerchantRecipe(resultItem.clone(), maxUses);
 
-        recipe.setIngredients(List.of(experienceItem(xpCost, playerLevel), catalystCost.getItem()));
+        // Pass both XP values into experienceItem so we can show them in lore
+        ItemStack xpItem = experienceItem(player.locale(), xpRequired, xpCost, playerLevel);
+
+        recipe.setIngredients(List.of(xpItem, catalystCost.getItem()));
 
         return recipe;
     }
@@ -126,17 +127,45 @@ public record TieredEnchant(String key, boolean enabled, Rarity rarity, Visibili
         return true;
     }
 
-    private @NonNull ItemStack experienceItem(int xpCost, int playerLevel) {
+    private @NonNull ItemStack experienceItem(@Nonnull Locale locale, int xpRequired, int xpCost, int playerLevel) {
 
-        ItemStack item = ItemStack.of(Material.EXPERIENCE_BOTTLE, xpCost);
-        NamedTextColor color = xpCost <= playerLevel ? NamedTextColor.GREEN : NamedTextColor.RED;
+        ItemStack item;
+        TextColor color;
+
+        if (xpRequired > playerLevel) {
+            // Player doesn't meet the unlock requirement
+            item = ItemStack.of(Material.GLASS_BOTTLE, xpRequired);
+            color = ConfigData.get().getErrorColour(); // always red
+        } else {
+            if (xpCost > playerLevel) {
+                // Not enough XP to pay the cost
+                item = ItemStack.of(Material.GLASS_BOTTLE, xpCost);
+                color = ConfigData.get().getErrorColour();
+            } else {
+                // Enough XP, normal experience bottle
+                item = ItemStack.of(Material.EXPERIENCE_BOTTLE, xpCost);
+                color = ConfigData.get().getSuccessColour();
+            }
+        }
+
+        TextColor reqColor = xpRequired <= playerLevel ? ConfigData.get().getSuccessColour() : ConfigData.get().getErrorColour();
 
         item.editMeta(meta -> {
-            meta.itemName(Component.text("Level cost: ", NamedTextColor.YELLOW).append(Component.text(xpCost, color)));
-            meta.lore(List.of(Component.empty(),
-                Component.text("Player level: ", NamedTextColor.YELLOW)
-                        .append(Component.text(playerLevel, NamedTextColor.GRAY))
-                        .decoration(TextDecoration.ITALIC, false)));
+            // Always show XP cost in the name if player meets unlock requirement, else just show required
+            if (xpRequired > playerLevel) {
+                meta.itemName(LocaleManager.get(locale, "ui.xp.required.level", ConfigData.get().getDescriptionHighlightColour(),
+                        Component.text(xpRequired, reqColor)));
+            } else {
+                meta.itemName(LocaleManager.get(locale, "ui.xp.level.cost", ConfigData.get().getDescriptionHighlightColour(),
+                        Component.text(xpCost, color)));
+            }
+
+            // Lore always shows player level and required level
+            meta.lore(List.of(
+                    Component.empty(),
+                    LocaleManager.get(locale, "ui.xp.player.level", ConfigData.get().getDescriptionHighlightColour(),
+                            Component.text(playerLevel, ConfigData.get().getDescriptionColour()))
+            ));
         });
 
         return item;

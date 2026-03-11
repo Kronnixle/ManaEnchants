@@ -2,8 +2,13 @@ package net.manameta.manaenchants.common.config;
 
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.manameta.manaenchants.ManaEnchants;
 import net.manameta.manaenchants.xp.model.LevelCost;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -11,24 +16,26 @@ import org.jetbrains.annotations.NotNull;
 import javax.inject.Singleton;
 import java.io.File;
 import java.util.*;
-import java.util.logging.Level;
 
 @Singleton
 public final class ConfigData {
     // -----------------------------
     // General Settings
     // -----------------------------
-    private Sound errorSound, clickSound, chatNotifySound, successSound, levelUpSound;
+    private Sound errorSound, clickSound, successSound, levelUpSound, enchantSound;
+    private TextColor errorColour, errorHighlightColour, successColour, successHighlightColour, descriptionColour, descriptionHighlightColour,
+            hoverColour, pageColour, headerColour, enchantColour;
+
+    private final Component corePrefix, enchantPrefix, xpPrefix;
+
     private final Locale defaultLocale;
     private final boolean strict;
-    private final Level logLevel;
     private final int entriesPerPage;
-
 
     // -----------------------------
     // Experience Settings
     // -----------------------------
-    private final boolean xpEnabled;
+    private final boolean vanillaXP;
     private final List<LevelCost> xpCosts;
     private final int deathPenalty, lostEXP;
 
@@ -37,16 +44,30 @@ public final class ConfigData {
     // -----------------------------
     public Sound getErrorSound() { return errorSound; }
     public Sound getClickSound() { return clickSound; }
-    public Sound getChatNotifySound() { return chatNotifySound; }
     public Sound getSuccessSound() { return successSound; }
     public Sound getLevelUpSound() { return levelUpSound; }
+    public Sound getEnchantSound() { return enchantSound; }
+
+    public TextColor getErrorColour() { return errorColour; }
+    public TextColor getErrorHighlightColour() { return errorHighlightColour; }
+    public TextColor getSuccessColour() { return successColour; }
+    public TextColor getSuccessHighlightColour() { return successHighlightColour; }
+    public TextColor getDescriptionColour() { return descriptionColour; }
+    public TextColor getDescriptionHighlightColour() { return descriptionHighlightColour; }
+    public TextColor getHeaderColour() { return headerColour; }
+    public TextColor getHoverColour() { return hoverColour; }
+    public TextColor getPageColour() { return pageColour; }
+    public TextColor getEnchantColour() { return enchantColour; }
+
+    public Component getCorePrefix() { return corePrefix; }
+    public Component getEnchantPrefix() { return enchantPrefix; }
+    public Component getXPPrefix() { return xpPrefix; }
 
     public Locale getDefaultLocale() { return defaultLocale; }
     public boolean getStrict() { return strict; }
-    public Level getLogLevel() { return logLevel; }
     public int getEntriesPerPage() { return entriesPerPage; }
 
-    public boolean isXpEnabled() { return xpEnabled; }
+    public boolean isVanillaXP() { return vanillaXP; }
     public List<LevelCost> getXpCosts() { return xpCosts; }
 
     public int getDeathPenalty() { return deathPenalty; }
@@ -59,40 +80,68 @@ public final class ConfigData {
         entriesPerPage = config.getInt("entries_per_page", 8);
         defaultLocale = Locale.of(config.getString("locale.default", "en"));
         strict = config.getBoolean("locale.strict", false);
-        logLevel = Level.parse(config.getString("debug.log_level", "WARNING").toUpperCase());
 
         // Sounds
-        for (String soundStr : Set.of("error", "click", "chat_notify", "success", "level_up")) {
+        for (String soundStr : Set.of("error", "click", "success", "level_up", "enchant")) {
             Sound sound = buildSound(config, soundStr);
             switch (soundStr) {
                 case "error" -> errorSound = sound;
                 case "click" -> clickSound = sound;
-                case "chat_notify" -> chatNotifySound = sound;
                 case "success" -> successSound = sound;
                 case "level_up" -> levelUpSound = sound;
+                case "enchant" -> enchantSound = sound;
             }
         }
+
+        // Colours
+        for (String colourStr : Set.of("error", "error_highlight", "success", "success_highlight", "header", "description_highlight", "hover",
+                "page", "description", "enchant")) {
+            TextColor colour = buildColour(config, colourStr);
+            switch (colourStr) {
+                case "error" -> errorColour = colour;
+                case "error_highlight" -> errorHighlightColour = colour;
+                case "success" -> successColour = colour;
+                case "success_highlight" -> successHighlightColour = colour;
+                case "description" -> descriptionColour = colour;
+                case "description_highlight" -> descriptionHighlightColour = colour;
+                case "header" -> headerColour = colour;
+                case "hover" -> hoverColour = colour;
+                case "page" -> pageColour = colour;
+                case "enchant" -> enchantColour = colour;
+            }
+        }
+
+        corePrefix = MiniMessage.miniMessage().deserialize(config.getString("prefix.core", "<gray>[<gold>ManaEnchants<gray>]"));
+        enchantPrefix = MiniMessage.miniMessage().deserialize(config.getString("prefix.enchant", "<gray>[<gold>Enchant<gray>]"));
+        xpPrefix = MiniMessage.miniMessage().deserialize(config.getString("prefix.xp", "<gray>[<gold>XP<gray>]"));
 
         // -----------------------------
         // Load Experience Section
         // -----------------------------
-        xpEnabled = config.getBoolean("experience.enabled", true);
+        vanillaXP = config.getBoolean("experience.vanilla", true);
 
         // Costs
         xpCosts = new ArrayList<>();
 
-        List<Map<?, ?>> costsList = config.getMapList("experience.costs");
+        if (vanillaXP) {
+            // Custom XP mode: load from config
+            List<Map<?, ?>> costsList = config.getMapList("experience.costs");
 
-        if (costsList.isEmpty()) {
-            // Fallback flat XP
-            xpCosts.add(new LevelCost(0, "100"));
-        } else {
-            for (Map<?, ?> entry : costsList) {
-                int minLevel = (entry.get("min_level") instanceof Number) ? ((Number) entry.get("min_level")).intValue() : 0;
-                String formula = (entry.get("formula") != null) ? entry.get("formula").toString() : "100";
-                xpCosts.add(new LevelCost(minLevel, formula));
+            if (costsList.isEmpty()) {
+                // Fallback flat XP
+                xpCosts.add(new LevelCost(0, "100"));
+            } else {
+                for (Map<?, ?> entry : costsList) {
+                    int minLevel = (entry.get("min_level") instanceof Number) ? ((Number) entry.get("min_level")).intValue() : 0;
+                    String formula = (entry.get("formula") != null) ? entry.get("formula").toString() : "100";
+                    xpCosts.add(new LevelCost(minLevel, formula));
+                }
+                xpCosts.sort(Comparator.comparingInt(LevelCost::minLevel));
             }
-            xpCosts.sort(Comparator.comparingInt(LevelCost::minLevel));
+        } else {
+            xpCosts.add(new LevelCost(0, "2 * level + 7"));
+            xpCosts.add(new LevelCost(16, "5 * level - 38"));
+            xpCosts.add(new LevelCost(31, "9 * level - 158"));
         }
 
         deathPenalty = config.getInt("experience.death_penalty", 100);
@@ -112,6 +161,13 @@ public final class ConfigData {
                .pitch(pitch)
                .seed(seed)
                .build();
+    }
+
+    private @NotNull TextColor buildColour(@NotNull ConfigurationSection config, String colourStr) {
+        String key = config.getString("colours."+colourStr, "#AAAAAA");
+
+        TextColor color = TextColor.fromHexString(key);
+        return Objects.requireNonNullElse(color, NamedTextColor.GRAY);
     }
 
     private static class InstanceHolder { private static ConfigData instance = new ConfigData(); }

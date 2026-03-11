@@ -26,8 +26,6 @@ public final class ConfigurationManager {
      */
     private static void ensureRootStructure() {
         createDirectory("locale");
-
-        createDirectory("custom_enchants");
     }
 
     private static void loadCoreConfigs() {
@@ -38,7 +36,6 @@ public final class ConfigurationManager {
 
     private static void loadInfrastructureConfigs() {
         ensureExists("locale/en.properties");
-        ensureExists("custom_enchants/magma_aspect.yml");
         ensureExists("saved_items.yml");
     }
 

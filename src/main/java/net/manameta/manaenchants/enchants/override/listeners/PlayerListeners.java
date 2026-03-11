@@ -2,8 +2,10 @@ package net.manameta.manaenchants.enchants.override.listeners;
 
 import net.manameta.manaenchants.ManaEnchants;
 import net.manameta.manaenchants.common.config.ConfigData;
-import net.manameta.manaenchants.enchants.MerchantGUI;
+import net.manameta.manaenchants.common.gui.MerchantGUI;
 import net.manameta.manaenchants.enchants.override.events.EnchantTableOpenEvent;
+import net.manameta.manaenchants.xp.override.CustomXP;
+import net.manameta.manaenchants.xp.override.VanillaXP;
 import net.manameta.manaenchants.xp.override.XPManager;
 import org.bukkit.Material;
 import org.bukkit.Tag;
@@ -92,13 +94,6 @@ public class PlayerListeners implements Listener {
 
     @EventHandler
     public void onPlayerJoin(@NonNull PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-
-        if (XPManager.hasKey(player)) {
-            XPManager.updateLevel(player);
-            return;
-        }
-        // Update this player to use our system...
-        XPManager.setTotalXP(player, player.getTotalExperience());
+        XPManager.updatePlayer(event.getPlayer());
     }
 }

@@ -1,7 +1,6 @@
 plugins {
     id 'java'
     id 'xyz.jpenilla.run-paper' version '2.3.1'
-    id 'io.papermc.paperweight.userdev' version '2.0.0-beta.19'
     id 'com.gradleup.shadow' version '9.2.1'
     id 'maven-publish'
 }
@@ -14,7 +13,6 @@ java {
 }
 
 repositories {
-    mavenLocal()
     mavenCentral()
 
     maven {
@@ -29,17 +27,9 @@ repositories {
 }
 
 dependencies {
-    paperweight.paperDevBundle('1.21.11-R0.1-SNAPSHOT')
-
-    // ManaAPI is compile-only; provided by ManaCore at runtime
-    compileOnly 'net.manameta:ManaAPI:1.0.0'
+    compileOnly 'io.papermc.paper:paper-api:1.21.11-R0.1-SNAPSHOT'
 
     implementation 'net.objecthunter:exp4j:0.4.8'
-
-    // ProtoWeaver support
-    compileOnly 'me.mrnavastar.protoweaver:common:1.5.1'
-
-
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -48,31 +38,16 @@ tasks.withType(JavaCompile).configureEach {
 }
 
 shadowJar {
-    archiveClassifier.set(null)
+    archiveClassifier.set('')
     destinationDirectory.set(file('C:/Users/user-00/Desktop/Plugin Development/1.21.11 server/plugins'))
 
-    // Exclude ProtoWeaver from the shaded jar
-    dependencies {
-        exclude(dependency('me.mrnavastar.protoweaver:.*'))
-    }
-
     mergeServiceFiles()
-}
-
-// Build task sequence
-tasks.register('buildPlugin') {
-    dependsOn tasks.shadowJar
 }
 
 tasks.build {
     dependsOn tasks.shadowJar
 }
 
-tasks.assemble {
-    dependsOn tasks.shadowJar
-}
-
-// Disable default jar to avoid conflicts
 tasks.jar {
     enabled = false
 }
@@ -86,10 +61,12 @@ publishing {
             version = project.version
         }
     }
+
     repositories {
         maven {
             name = 'github'
             url = uri('https://maven.pkg.github.com/Kronnixle/ManaEnchants')
+
             credentials {
                 username = project.findProperty('gpr.user') ?: System.getenv('GH_USER')
                 password = project.findProperty('gpr.key') ?: System.getenv('GH_TOKEN')
@@ -98,7 +75,6 @@ publishing {
     }
 }
 
-// Run server task for local testing
 tasks.runServer {
     minecraftVersion('1.21.11')
     pluginJars.from(tasks.shadowJar.archiveFile)

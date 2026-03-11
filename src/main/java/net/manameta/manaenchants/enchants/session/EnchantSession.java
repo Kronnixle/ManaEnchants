@@ -1,14 +1,15 @@
 package net.manameta.manaenchants.enchants.session;
 
-import com.mojang.datafixers.util.Pair;
 import io.papermc.paper.registry.RegistryAccess;
 import io.papermc.paper.registry.RegistryKey;
+import it.unimi.dsi.fastutil.Pair;
 import net.kyori.adventure.key.Key;
 import net.manameta.manaenchants.ManaEnchants;
-import net.manameta.manaenchants.enchants.MerchantGUI;
+import net.manameta.manaenchants.common.helpers.SoundHelpers;
+import net.manameta.manaenchants.common.gui.MerchantGUI;
 import net.manameta.manaenchants.enchants.model.TieredEnchant;
 import net.manameta.manaenchants.enchants.TieredEnchantsConfig;
-import net.manameta.manaenchants.enchants.utils.helpers.EnchantMerchantHelper;
+import net.manameta.manaenchants.enchants.EnchantMerchantHelper;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -21,10 +22,7 @@ import org.bukkit.inventory.view.MerchantView;
 import org.jspecify.annotations.NonNull;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class EnchantSession {
 
@@ -86,8 +84,8 @@ public class EnchantSession {
 
         if (!entries.isEmpty()) {
             entries.sort((a, b) -> {
-                MerchantRecipe recipeA = a.getFirst();
-                MerchantRecipe recipeB = b.getFirst();
+                MerchantRecipe recipeA = a.left();
+                MerchantRecipe recipeB = b.left();
 
                 int groupA = recipeGroup(recipeA);
                 int groupB = recipeGroup(recipeB);
@@ -107,8 +105,8 @@ public class EnchantSession {
 
         int index = 0;
         for (Pair<MerchantRecipe, TieredEnchant> entry : entries) {
-            recipes.add(entry.getFirst());
-            enchantMap.put(index++, entry.getSecond());
+            recipes.add(entry.left());
+            enchantMap.put(index++, entry.right());
         }
 
         if (recipes.isEmpty()) {
@@ -122,8 +120,6 @@ public class EnchantSession {
         merchantView.getMerchant().setRecipes(recipes);
     }
 
-
-
     /*
      * Trade Selection
      */
@@ -133,6 +129,11 @@ public class EnchantSession {
         boolean isDefault = recipe.getIngredients().stream().noneMatch(i -> i.getType() == Material.EXPERIENCE_BOTTLE);
 
         if (isDefault) {
+            if (recipe.getMaxUses() == 0) {
+                event.setCancelled(true);
+                return;
+            }
+
             Bukkit.getScheduler().runTask(ManaEnchants.getInstance(), this::refresh);
             return;
         }
@@ -172,6 +173,7 @@ public class EnchantSession {
         if (level < pendingXpCost) return;
 
         player.setLevel(level - pendingXpCost);
+        SoundHelpers.enchantSound(player);
         pendingXpCost = 0;
         syncSlots();
         markDirty();
@@ -204,30 +206,20 @@ public class EnchantSession {
         }
 
         TieredEnchant enchant = enchantMap.get(index);
-        if (enchant == null) {
-            return false;
-        }
+        if (enchant == null) return false;
 
         Enchantment ench = resolveEnchantment(enchant.key());
-        if (ench == null) {
-            return false;
-        }
+        if (ench == null) return false;
 
         int level = toolItem.getEnchantmentLevel(ench) + 1;
 
         ItemStack catalystCost = enchant.getCatalystCost(level).getItem();
 
-        if (catalystItem == null) {
-            return false;
-        }
+        if (catalystItem == null) return false;
 
-        if (!catalystCost.isSimilar(catalystItem)) {
-            return false;
-        }
+        if (!catalystCost.isSimilar(catalystItem)) return false;
 
-        if (catalystItem.getAmount() < catalystCost.getAmount()) {
-            return false;
-        }
+        if (catalystItem.getAmount() < catalystCost.getAmount()) return false;
 
         pendingXpCost = enchant.getXpCost(level);
 
@@ -258,9 +250,10 @@ public class EnchantSession {
      * Preview UI
      */
     private void showPreview(@Nonnull TieredEnchant enchant, @NonNull ItemStack catalyst, @NonNull ItemStack upgradedTool) {
+        Locale locale = player.locale();
         ItemStack playerHead = EnchantMerchantHelper.createPlayerHead(player, pendingXpCost);
-        ItemStack xpItem = EnchantMerchantHelper.createGhostXPItem(pendingXpCost);
-        ItemStack ghostEnchant = EnchantMerchantHelper.createGhostEnchantment(toolItem, enchant);
+        ItemStack xpItem = EnchantMerchantHelper.createGhostXPItem(locale, pendingXpCost);
+        ItemStack ghostEnchant = EnchantMerchantHelper.createGhostEnchantment(locale, toolItem, enchant);
 
         List<MerchantRecipe> previewRecipes = new ArrayList<>(2);
 

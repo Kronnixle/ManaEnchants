@@ -4,8 +4,8 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
-import net.manameta.api.core.commands.HelpID;
-import net.manameta.api.core.commands.ParentCommand;
+import net.manameta.manaenchants.common.helpers.HelpID;
+import net.manameta.manaenchants.common.helpers.ParentCommand;
 import net.manameta.manaenchants.common.config.CommandConfig;
 import net.manameta.manaenchants.common.helpers.PermissionHelpers;
 import net.manameta.manaenchants.items.SavedItems;
@@ -88,8 +88,9 @@ public final class CoreCommand {
                                     String input = builder.getRemainingLowerCase();
 
                                     String arg = StringArgumentType.getString(ctx, "arg");
-                                    if (arg.equalsIgnoreCase("clear")) return builder.buildFuture();
-                                    if (arg.equalsIgnoreCase("list")) return builder.buildFuture();
+                                    if (arg.equalsIgnoreCase("clear") ||
+                                        arg.equalsIgnoreCase("list") ||
+                                        arg.equalsIgnoreCase("add")) return builder.buildFuture();
 
                                     for (String item : SavedItems.get().getItems().keySet()) {
                                         if (item.startsWith(input)) builder.suggest(item);

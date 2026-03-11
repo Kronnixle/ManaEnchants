@@ -5,13 +5,11 @@ import net.kyori.adventure.identity.Identity;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.JoinConfiguration;
 import net.kyori.adventure.text.event.ClickEvent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.manameta.manaenchants.common.config.ConfigData;
 import net.manameta.manaenchants.common.helpers.MessageHelpers;
-import net.manameta.manaenchants.common.helpers.PrefixHelpers;
 import net.manameta.manaenchants.common.helpers.SoundHelpers;
 import net.manameta.manaenchants.common.locale.LocaleManager;
 import net.manameta.manaenchants.common.utils.ItemGroup;
@@ -37,7 +35,8 @@ final class C_EnchantInfo {
         TieredEnchant tieredEnchant = TieredEnchantsConfig.get().getEnchant(name);
 
         if (tieredEnchant == null) {
-            MessageHelpers.error(sender, PrefixHelpers.ENCHANT_PREFIX, "commands.enchant.not.found", Component.text(name, NamedTextColor.GRAY));
+            MessageHelpers.error(sender, ConfigData.get().getEnchantPrefix(), "commands.enchant.not.found",
+                    Component.text(name, ConfigData.get().getErrorHighlightColour()));
             return 0;
         }
 
@@ -54,27 +53,27 @@ final class C_EnchantInfo {
 
     static int execute(@Nonnull Audience sender) {
         if (!(sender instanceof Player player)) {
-            MessageHelpers.error(sender, PrefixHelpers.ENCHANT_PREFIX, "commands.error.player.command");
+            MessageHelpers.error(sender, ConfigData.get().getEnchantPrefix(), "commands.error.player.command");
             return 0;
         }
 
         ItemStack item = player.getEquipment().getItemInMainHand();
 
         if (item.isEmpty() || item.getType() == Material.AIR) {
-            MessageHelpers.error(sender, PrefixHelpers.ENCHANT_PREFIX, "commands.core.item.missing");
+            MessageHelpers.error(sender, ConfigData.get().getEnchantPrefix(), "commands.core.item.missing");
             return 0;
         }
 
 
         if (item.getEnchantments().isEmpty()) {
-            MessageHelpers.error(sender, PrefixHelpers.ENCHANT_PREFIX, "commands.enchant.empty");
+            MessageHelpers.error(sender, ConfigData.get().getEnchantPrefix(), "commands.enchant.empty");
             return 0;
         }
 
         SoundHelpers.successSound(sender);
 
         sender.sendMessage(Component.empty());
-        sender.sendMessage(Component.translatable("enchantments.display.item.header", NamedTextColor.GOLD,
+        sender.sendMessage(Component.translatable("enchantments.display.item.header", ConfigData.get().getHeaderColour(),
                 item.displayName()));
         sender.sendMessage(Component.empty());
 
@@ -91,7 +90,7 @@ final class C_EnchantInfo {
     }
 
     private static @NonNull List<Component> buildEnchantmentDescription(@Nonnull Locale locale, @NonNull TieredEnchant tieredEnchant) {
-
+        ConfigData config = ConfigData.get();
         Enchantment enchantment = tieredEnchant.resolveEnchantment();
         if (enchantment == null) return Collections.emptyList();
 
@@ -99,22 +98,22 @@ final class C_EnchantInfo {
         Rarity rarity = tieredEnchant.rarity();
         Set<Material> appliesTo = tieredEnchant.appliesTo();
 
-        Component name = enchantment.description().color(NamedTextColor.YELLOW);
+        Component name = enchantment.description().color(config.getDescriptionHighlightColour());
 
         Component rarityValue = Component.translatable("enchantments.rarity." + rarity.name().toLowerCase(), rarity.getColor())
                 .hoverEvent(buildRarityHover(rarity));
 
-        Component rarityLine = Component.translatable("enchantments.display.rarity", NamedTextColor.YELLOW, rarityValue);
+        Component rarityLine = Component.translatable("enchantments.display.rarity", config.getDescriptionHighlightColour(), rarityValue);
 
-        Component maxLevelLine = Component.translatable("enchantments.display.max_level", NamedTextColor.YELLOW,
-                Component.text(maxLevel, NamedTextColor.WHITE));
+        Component maxLevelLine = Component.translatable("enchantments.display.max_level", config.getDescriptionHighlightColour(),
+                Component.text(maxLevel, config.getDescriptionColour()));
 
-        Component appliesToLine = Component.translatable("enchantments.display.applies_to", NamedTextColor.YELLOW,
+        Component appliesToLine = Component.translatable("enchantments.display.applies_to", config.getDescriptionHighlightColour(),
                 buildAppliesToComponent(appliesTo));
 
         String mm = LocaleManager.resolve(locale, "enchantments.display." + tieredEnchant.key() + ".description");
 
-        Component description = MiniMessage.miniMessage().deserialize(mm).colorIfAbsent(NamedTextColor.GRAY);
+        Component description = MiniMessage.miniMessage().deserialize(mm).colorIfAbsent(config.getDescriptionColour());
 
         return List.of(
                 Component.empty(),
@@ -139,7 +138,7 @@ final class C_EnchantInfo {
             ItemGroup group = entry.getKey();
             List<Material> groupMaterials = entry.getValue();
 
-            Component groupComponent = Component.text(formatGroupName(group), NamedTextColor.WHITE, TextDecoration.ITALIC)
+            Component groupComponent = Component.text(formatGroupName(group), ConfigData.get().getDescriptionColour(), TextDecoration.ITALIC)
                     .hoverEvent(buildMaterialHover(groupMaterials));
 
             components.add(groupComponent);
@@ -151,6 +150,8 @@ final class C_EnchantInfo {
     @Contract(pure = true)
     private static @NonNull String formatGroupName(@NonNull ItemGroup group) {
         return switch (group) {
+            case SPEAR -> "Spears";
+            case SWORDS -> "Swords";
             case PICKAXE -> "Pickaxes";
             case AXE -> "Axes";
             case SHOVEL -> "Shovels";
@@ -160,7 +161,15 @@ final class C_EnchantInfo {
             case CHEST -> "Chest";
             case LEGGINGS -> "Leggings";
             case BOOTS -> "Boots";
-            default -> "Items";
+            case BOWS -> "Bows";
+            case RODS -> "Rods";
+            case MACE -> "Mace";
+            case TRIDENT -> "Trident";
+            case SHIELD -> "Shield";
+            case ELYTRA -> "Elytra";
+            case BRUSH -> "Brush";
+            case FLINT_AND_STEEL -> "Flint and Steel";
+            default -> "Other";
         };
     }
 
@@ -170,7 +179,7 @@ final class C_EnchantInfo {
 
         for (Material material : materials) {
             lines.add(Component.translatable(material.translationKey())
-                    .color(NamedTextColor.WHITE));
+                    .color(ConfigData.get().getDescriptionColour()));
         }
 
         return Component.join(JoinConfiguration.separator(Component.newline()), lines);
@@ -180,27 +189,27 @@ final class C_EnchantInfo {
         Enchantment enchantment = tieredEnchant.resolveEnchantment();
         if (enchantment == null) return Component.empty();
 
-        Component enchantName = enchantment.description().color(NamedTextColor.YELLOW);
+        ConfigData config = ConfigData.get();
+        Component enchantName = enchantment.description().color(config.getDescriptionHighlightColour());
 
+        Component levelComponent = Component.translatable("enchantments.display.level", config.getDescriptionColour(),
+                Component.text(level, config.getDescriptionHighlightColour()),
+                Component.text(tieredEnchant.maxLevel(), config.getDescriptionHighlightColour()));
 
-        Component levelComponent = Component.translatable("enchantments.display.level", NamedTextColor.GRAY,
-                Component.text(level, NamedTextColor.YELLOW),
-                Component.text(tieredEnchant.maxLevel(), NamedTextColor.YELLOW));
+        Component description = Component.translatable("enchantments.display." + tieredEnchant.key() + ".short", config.getDescriptionColour());
 
-        Component description = Component.translatable("enchantments.display." + tieredEnchant.key() + ".short", NamedTextColor.GRAY);
-
-        return Component.translatable("enchantments.display.item.format", NamedTextColor.GRAY,
+        return Component.translatable("enchantments.display.item.format", config.getDescriptionColour(),
                 enchantName,
                 levelComponent,
                 description)
                 .clickEvent(ClickEvent.callback(audience -> execute(audience, tieredEnchant.key())))
-                .hoverEvent(Component.translatable("text.click.details", NamedTextColor.GRAY));
+                .hoverEvent(Component.translatable("text.click.details", config.getHoverColour()));
     }
 
     private static @NonNull Component buildRarityHover(@NonNull Rarity current) {
         Collection<Component> lines = new ArrayList<>();
 
-        lines.add(Component.translatable("enchantments.rarity", NamedTextColor.GOLD));
+        lines.add(Component.translatable("enchantments.rarity", ConfigData.get().getHeaderColour()));
         lines.add(Component.empty());
 
         for (Rarity rarity : Rarity.values()) {
@@ -211,7 +220,7 @@ final class C_EnchantInfo {
             Component line = Component.translatable("enchantments.rarity." + rarity.name().toLowerCase(), color);
 
             if (selected) {
-                line = line.append(Component.text(" ←", NamedTextColor.GREEN));
+                line = line.append(Component.text(" ←", ConfigData.get().getSuccessColour()));
             }
 
             lines.add(line);
