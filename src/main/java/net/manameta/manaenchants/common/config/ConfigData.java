@@ -124,6 +124,10 @@ public final class ConfigData {
         xpCosts = new ArrayList<>();
 
         if (vanillaXP) {
+            xpCosts.add(new LevelCost(0, "2 * level + 7"));
+            xpCosts.add(new LevelCost(16, "5 * level - 38"));
+            xpCosts.add(new LevelCost(31, "9 * level - 158"));
+        } else {
             // Custom XP mode: load from config
             List<Map<?, ?>> costsList = config.getMapList("experience.costs");
 
@@ -138,10 +142,6 @@ public final class ConfigData {
                 }
                 xpCosts.sort(Comparator.comparingInt(LevelCost::minLevel));
             }
-        } else {
-            xpCosts.add(new LevelCost(0, "2 * level + 7"));
-            xpCosts.add(new LevelCost(16, "5 * level - 38"));
-            xpCosts.add(new LevelCost(31, "9 * level - 158"));
         }
 
         deathPenalty = config.getInt("experience.death_penalty", 100);
